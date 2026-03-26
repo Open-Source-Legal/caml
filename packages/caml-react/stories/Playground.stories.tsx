@@ -3,6 +3,7 @@ import type { Meta } from "@storybook/react";
 import { parseCaml } from "@os-legal/caml";
 import type { CamlDocument } from "@os-legal/caml";
 import { CamlArticle } from "../src/CamlArticle";
+import { CamlThemeProvider } from "../src/CamlThemeProvider";
 import styled from "styled-components";
 
 // ---------------------------------------------------------------------------
@@ -425,7 +426,9 @@ function CamlPlayground() {
           </PreviewLabel>
           <PreviewScroll>
             {result.ok ? (
-              <CamlArticle document={result.document} />
+              <CamlThemeProvider>
+                <CamlArticle document={result.document} />
+              </CamlThemeProvider>
             ) : (
               <ErrorContainer>
                 <ErrorCard>
@@ -451,7 +454,7 @@ function CamlPlayground() {
 // ---------------------------------------------------------------------------
 
 const meta: Meta = {
-  title: "Playground",
+  title: "CAML/Playground",
   parameters: {
     layout: "fullscreen",
     controls: { disable: true },

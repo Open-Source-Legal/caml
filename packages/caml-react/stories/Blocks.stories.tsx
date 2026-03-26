@@ -1,38 +1,30 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { CamlBlockRenderer } from "../src/CamlBlocks";
-import {
-  proseBlock,
-  cardsBlock,
-  pillsBlock,
-  tabsBlock,
-  timelineBlock,
-  ctaBlock,
-  signupBlock,
-  corpusStatsBlock,
-  sampleStats,
-} from "./fixtures";
-import { SourcePreview } from "./SourcePreview";
+import { CamlShowcase } from "./CamlShowcase";
 
-const meta: Meta<typeof CamlBlockRenderer> = {
-  title: "Blocks",
-  component: CamlBlockRenderer,
+const meta: Meta = {
+  title: "CAML/Blocks",
   parameters: {
-    layout: "padded",
+    layout: "fullscreen",
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof CamlBlockRenderer>;
 
-export const Prose: Story = {
-  args: {
-    block: proseBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`Our analysis of **1,247 commercial contracts** across 14 jurisdictions
+// ---------------------------------------------------------------------------
+// Prose
+// ---------------------------------------------------------------------------
+
+const proseSource = `---
+hero:
+  title:
+    - "Prose Block"
+---
+
+::: chapter {#demo}
+## Executive Overview
+
+Our analysis of **1,247 commercial contracts** across 14 jurisdictions
 reveals significant patterns in force majeure clause adoption following
 the 2020 pandemic.
 
@@ -42,50 +34,28 @@ pandemic-specific force majeure language than pre-pandemic agreements."
 The data shows a clear inflection point in Q2 2020, with adoption rates
 stabilizing at approximately 78% by Q4 2021. Notably, contracts in the
 **financial services** and **healthcare** sectors led this trend, while
-**real estate** agreements showed the slowest adoption curve.`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+**real estate** agreements showed the slowest adoption curve.
+
+:::`;
+
+export const Prose: StoryObj = {
+  render: () => <CamlShowcase source={proseSource} />,
 };
 
-export const ProseDark: Story = {
-  name: "Prose (Dark)",
-  args: {
-    block: {
-      type: "prose",
-      content: `The enforcement landscape shifted dramatically in 2024. Regulatory bodies across **major financial centers** issued a combined 156 enforcement actions related to contractual non-compliance.
+// ---------------------------------------------------------------------------
+// Cards
+// ---------------------------------------------------------------------------
 
->>> "Organizations that implemented automated contract monitoring reduced their compliance violations by 73% compared to those relying on manual review processes."
+const cardsSource = `---
+hero:
+  title:
+    - "Cards Block"
+---
 
-This underscores the critical importance of proactive compliance infrastructure.`,
-    },
-    dark: true,
-  },
-  decorators: [
-    (Story) => (
-      <div
-        style={{
-          background: "linear-gradient(135deg, #0f172a, #1e293b)",
-          padding: "2rem",
-          minHeight: "300px",
-        }}
-      >
-        <Story />
-      </div>
-    ),
-  ],
-};
+::: chapter {#demo}
+## Contract Clause Types
 
-export const Cards: Story = {
-  args: {
-    block: cardsBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: cards {columns: 3}
+::: cards {columns: 3}
 - **Indemnification Clauses** | 412 instances | #0f766e
   Mutual indemnification found in 67% of reviewed contracts,
   with carve-outs for willful misconduct.
@@ -100,67 +70,28 @@ export const Cards: Story = {
   30-day notice period is the most common term. 23% include
   wind-down provisions for ongoing work.
   ~ Notice range: 15-90 days
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+export const Cards: StoryObj = {
+  render: () => <CamlShowcase source={cardsSource} />,
 };
 
-export const CardsTwoColumn: Story = {
-  name: "Cards (Two Column)",
-  args: {
-    block: {
-      type: "cards",
-      columns: 2,
-      items: [
-        {
-          label: "Data Processing Agreements",
-          meta: "GDPR Article 28",
-          accent: "#2563eb",
-          body: "Standard contractual clauses reviewed for adequacy. 14 agreements flagged for missing sub-processor notification requirements.",
-          footer: "89% compliant",
-        },
-        {
-          label: "Cross-Border Transfers",
-          meta: "Schrems II Impact",
-          accent: "#dc2626",
-          body: "Transfer impact assessments completed for all EU-US data flows. Supplementary measures documented for 8 high-risk transfers.",
-          footer: "Action required for 3 transfers",
-        },
-      ],
-    },
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: cards {columns: 2}
-- **Data Processing Agreements** | GDPR Article 28 | #2563eb
-  Standard contractual clauses reviewed for adequacy. 14 agreements
-  flagged for missing sub-processor notification requirements.
-  ~ 89% compliant
+// ---------------------------------------------------------------------------
+// Pills
+// ---------------------------------------------------------------------------
 
-- **Cross-Border Transfers** | Schrems II Impact | #dc2626
-  Transfer impact assessments completed for all EU-US data flows.
-  Supplementary measures documented for 8 high-risk transfers.
-  ~ Action required for 3 transfers
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
-};
+const pillsSource = `---
+hero:
+  title:
+    - "Pills Block"
+---
 
-export const Pills: Story = {
-  args: {
-    block: pillsBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: pills
+::: chapter {#demo}
+## Key Metrics
+
+::: pills
 - 247 | **Documents Reviewed** | Q4 2024
   status: Complete | #16a34a
 - 94% | **Compliance Rate** | Across all jurisdictions
@@ -169,22 +100,28 @@ export const Pills: Story = {
   status: Action Required | #dc2626
 - 3.2d | **Avg. Review Time** | Per document
   status: On Track | #2563eb
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+export const Pills: StoryObj = {
+  render: () => <CamlShowcase source={pillsSource} />,
 };
 
-export const Tabs: Story = {
-  args: {
-    block: tabsBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: tabs
+// ---------------------------------------------------------------------------
+// Tabs
+// ---------------------------------------------------------------------------
+
+const tabsSource = `---
+hero:
+  title:
+    - "Tabs Block"
+---
+
+::: chapter {#demo}
+## Jurisdictional Analysis
+
+::: tabs
 :::: tab {label: "North America", status: "94% compliant", color: #0f766e}
 #### United States {highlight}
 Federal regulations analyzed across **SEC**, **CFPB**, and **OCC**
@@ -193,7 +130,8 @@ and California corporate governance requirements.
 
 #### Canada
 Provincial securities commissions reviewed. Notable divergence in
-Quebec civil law treatment of contractual obligations.
+Quebec civil law treatment of contractual obligations versus common
+law provinces.
 
 \u00a7 SEC EDGAR
 \u00a7 CFPB Regulations
@@ -203,9 +141,11 @@ Quebec civil law treatment of contractual obligations.
 :::: tab {label: "European Union", status: "87% compliant", color: #7c3aed}
 #### GDPR Impact on Contracts {highlight}
 Data processing agreements reviewed for **Article 28** compliance.
+Standard contractual clauses updated per June 2021 implementing decision.
 
 #### MiFID II Obligations
-Investment services agreements analyzed for best execution policies.
+Investment services agreements analyzed for best execution policies,
+cost transparency, and product governance requirements.
 
 \u00a7 EUR-Lex
 \u00a7 ESMA Guidelines
@@ -220,22 +160,28 @@ provisions affecting contract enforcement across APAC jurisdictions.
 \u00a7 HKEX Listing Rules
 \u00a7 ASIC Regulatory Guides
 ::::
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+export const Tabs: StoryObj = {
+  render: () => <CamlShowcase source={tabsSource} />,
 };
 
-export const Timeline: Story = {
-  args: {
-    block: timelineBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: timeline
+// ---------------------------------------------------------------------------
+// Timeline
+// ---------------------------------------------------------------------------
+
+const timelineSource = `---
+hero:
+  title:
+    - "Timeline Block"
+---
+
+::: chapter {#demo}
+## Regulatory Timeline
+
+::: timeline
 legend:
 - regulatory | #0f766e
 - enforcement | #dc2626
@@ -247,104 +193,99 @@ legend:
 - Sep 2024 | Updated guidance on digital asset contract classification | guidance
 - Nov 2024 | Record fine for non-compliant data processing agreements | enforcement
 - Jan 2025 | New model contractual clauses published by ICC | guidance
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+export const Timeline: StoryObj = {
+  render: () => <CamlShowcase source={timelineSource} />,
 };
 
-export const CTA: Story = {
-  args: {
-    block: ctaBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: cta
+// ---------------------------------------------------------------------------
+// CTA
+// ---------------------------------------------------------------------------
+
+const ctaSource = `---
+hero:
+  title:
+    - "CTA Block"
+---
+
+::: chapter {#demo, gradient: true, centered: true}
+## Ready to Transform Your Contract Analysis?
+
+Join leading legal teams using AI-powered document analytics to reduce
+review time by 60% and improve compliance accuracy.
+
+::: cta
 - [View Full Report](#report) {primary}
 - [Download Summary](#download)
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+export const CTA: StoryObj = {
+  render: () => <CamlShowcase source={ctaSource} />,
 };
 
-export const CTASingleButton: Story = {
-  name: "CTA (Single Button)",
-  args: {
-    block: {
-      type: "cta",
-      items: [
-        {
-          label: "Request Access to Full Analysis",
-          href: "#request",
-          primary: true,
-        },
-      ],
-    },
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: cta
-- [Request Access to Full Analysis](#request) {primary}
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
-};
+// ---------------------------------------------------------------------------
+// Signup
+// ---------------------------------------------------------------------------
 
-export const Signup: Story = {
-  args: {
-    block: signupBlock,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: signup
+const signupSource = `---
+hero:
+  title:
+    - "Signup Block"
+---
+
+::: chapter {#demo}
+## Stay Connected
+
+::: signup
 title: Stay Informed
 body: >
   Get weekly regulatory updates and contract analysis insights
   delivered to your inbox.
 button: Subscribe to Updates
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+export const Signup: StoryObj = {
+  render: () => <CamlShowcase source={signupSource} />,
 };
 
-export const CorpusStats: Story = {
-  args: {
-    block: corpusStatsBlock,
-    stats: sampleStats,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview
-        source={`::: corpus-stats
+// ---------------------------------------------------------------------------
+// Corpus Stats
+// ---------------------------------------------------------------------------
+
+const corpusStatsSource = `---
+hero:
+  title:
+    - "Corpus Stats Block"
+---
+
+::: chapter {#demo}
+## Corpus Metrics
+
+::: corpus-stats
 - documents | Documents
 - annotations | Annotations
 - contributors | Contributors
 - threads | Discussion Threads
-:::`}
-      >
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+:::
+
+:::`;
+
+const sampleStats = {
+  documents: 1247,
+  annotations: 8934,
+  contributors: 23,
+  threads: 156,
 };
 
-export const CorpusStatsNoData: Story = {
-  name: "Corpus Stats (No Data)",
-  args: {
-    block: corpusStatsBlock,
-  },
+export const CorpusStats: StoryObj = {
+  render: () => (
+    <CamlShowcase source={corpusStatsSource} stats={sampleStats} />
+  ),
 };

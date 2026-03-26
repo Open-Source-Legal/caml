@@ -1,21 +1,8 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { CamlArticle } from "../src/CamlArticle";
-import { fullDocument, emptyDocument, sampleStats } from "./fixtures";
-import { SourcePreview } from "./SourcePreview";
+import { CamlShowcase } from "./CamlShowcase";
 
-const meta: Meta<typeof CamlArticle> = {
-  title: "CamlArticle",
-  component: CamlArticle,
-  parameters: {
-    layout: "fullscreen",
-  },
-};
-
-export default meta;
-type Story = StoryObj<typeof CamlArticle>;
-
-const fullArticleCamlSource = `---
+const fullArticleSource = `---
 version: "1"
 site: OpenContracts
 
@@ -140,7 +127,7 @@ provisions affecting contract enforcement across APAC jurisdictions.
 :::
 
 ::: chapter {#regulatory-landscape, theme: dark}
->! Section 02
+>! Section 03
 ## Regulatory Landscape
 
 The regulatory environment continues to evolve rapidly. Our monitoring
@@ -201,65 +188,22 @@ review time by 60% and improve compliance accuracy.
 
 :::`;
 
-export const Default: Story = {
-  args: {
-    document: fullDocument,
-  },
-  decorators: [
-    (Story) => (
-      <SourcePreview source={fullArticleCamlSource}>
-        <Story />
-      </SourcePreview>
-    ),
-  ],
+const sampleStats = {
+  documents: 1247,
+  annotations: 8934,
+  contributors: 23,
+  threads: 156,
 };
 
-export const WithStats: Story = {
-  args: {
-    document: fullDocument,
-    stats: sampleStats,
-  },
-  argTypes: {
-    stats: { control: "object" },
+const meta: Meta = {
+  title: "CAML/Full Article",
+  parameters: {
+    layout: "fullscreen",
   },
 };
 
-export const CustomMarkdownRenderer: Story = {
-  args: {
-    document: fullDocument,
-    renderMarkdown: (content: string) => (
-      <div
-        style={{
-          padding: "1rem",
-          border: "2px dashed #94a3b8",
-          borderRadius: "8px",
-          fontFamily: "monospace",
-          fontSize: "0.875rem",
-          lineHeight: 1.6,
-          color: "#475569",
-          background: "#f8fafc",
-        }}
-      >
-        <div
-          style={{
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            color: "#0f766e",
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "0.5rem",
-          }}
-        >
-          Custom Renderer
-        </div>
-        <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>{content}</pre>
-      </div>
-    ),
-  },
-};
+export default meta;
 
-export const EmptyDocument: Story = {
-  args: {
-    document: emptyDocument,
-  },
+export const Default: StoryObj = {
+  render: () => <CamlShowcase source={fullArticleSource} stats={sampleStats} />,
 };
