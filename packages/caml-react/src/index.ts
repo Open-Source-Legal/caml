@@ -1,5 +1,15 @@
 export { CamlThemeProvider, useCamlTheme } from "./CamlThemeProvider";
 export { CamlMarkdown } from "./CamlMarkdown";
+export { CamlArticle } from "./CamlArticle";
+export type { CamlArticleProps } from "./CamlArticle";
+export { CamlChapterRenderer } from "./CamlChapter";
+export type { CamlChapterRendererProps } from "./CamlChapter";
+export { CamlBlockRenderer } from "./CamlBlocks";
+export { CamlHeroRenderer } from "./CamlHero";
+export type { CamlHeroRendererProps } from "./CamlHero";
+export { CamlFooterRenderer } from "./CamlFooter";
+export type { CamlFooterRendererProps } from "./CamlFooter";
+export { isSafeHref, isExternalHref } from "./safeHref";
 export { defaultCamlTheme } from "./theme";
 export type { CamlTheme, CamlStats } from "./theme";
 export * from "./styles";
