@@ -29,6 +29,9 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Build packages
+        run: yarn build
+
       - name: Build Storybook
         working-directory: packages/caml-react
         run: npx storybook build -o ../../storybook-static

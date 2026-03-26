@@ -15,16 +15,7 @@ export default meta;
 // Prose
 // ---------------------------------------------------------------------------
 
-const proseSource = `---
-hero:
-  title:
-    - "Prose Block"
----
-
-::: chapter {#demo}
-## Executive Overview
-
-Our analysis of **1,247 commercial contracts** across 14 jurisdictions
+const proseSource = `Our analysis of **1,247 commercial contracts** across 14 jurisdictions
 reveals significant patterns in force majeure clause adoption following
 the 2020 pandemic.
 
@@ -34,9 +25,7 @@ pandemic-specific force majeure language than pre-pandemic agreements."
 The data shows a clear inflection point in Q2 2020, with adoption rates
 stabilizing at approximately 78% by Q4 2021. Notably, contracts in the
 **financial services** and **healthcare** sectors led this trend, while
-**real estate** agreements showed the slowest adoption curve.
-
-:::`;
+**real estate** agreements showed the slowest adoption curve.`;
 
 export const Prose: StoryObj = {
   render: () => <CamlShowcase source={proseSource} />,
@@ -46,16 +35,7 @@ export const Prose: StoryObj = {
 // Cards
 // ---------------------------------------------------------------------------
 
-const cardsSource = `---
-hero:
-  title:
-    - "Cards Block"
----
-
-::: chapter {#demo}
-## Contract Clause Types
-
-::: cards {columns: 3}
+const cardsSource = `::: cards {columns: 3}
 - **Indemnification Clauses** | 412 instances | #0f766e
   Mutual indemnification found in 67% of reviewed contracts,
   with carve-outs for willful misconduct.
@@ -70,8 +50,6 @@ hero:
   30-day notice period is the most common term. 23% include
   wind-down provisions for ongoing work.
   ~ Notice range: 15-90 days
-:::
-
 :::`;
 
 export const Cards: StoryObj = {
@@ -82,16 +60,7 @@ export const Cards: StoryObj = {
 // Pills
 // ---------------------------------------------------------------------------
 
-const pillsSource = `---
-hero:
-  title:
-    - "Pills Block"
----
-
-::: chapter {#demo}
-## Key Metrics
-
-::: pills
+const pillsSource = `::: pills
 - 247 | **Documents Reviewed** | Q4 2024
   status: Complete | #16a34a
 - 94% | **Compliance Rate** | Across all jurisdictions
@@ -100,8 +69,6 @@ hero:
   status: Action Required | #dc2626
 - 3.2d | **Avg. Review Time** | Per document
   status: On Track | #2563eb
-:::
-
 :::`;
 
 export const Pills: StoryObj = {
@@ -112,16 +79,7 @@ export const Pills: StoryObj = {
 // Tabs
 // ---------------------------------------------------------------------------
 
-const tabsSource = `---
-hero:
-  title:
-    - "Tabs Block"
----
-
-::: chapter {#demo}
-## Jurisdictional Analysis
-
-::: tabs
+const tabsSource = `::: tabs
 :::: tab {label: "North America", status: "94% compliant", color: #0f766e}
 #### United States {highlight}
 Federal regulations analyzed across **SEC**, **CFPB**, and **OCC**
@@ -160,8 +118,6 @@ provisions affecting contract enforcement across APAC jurisdictions.
 \u00a7 HKEX Listing Rules
 \u00a7 ASIC Regulatory Guides
 ::::
-:::
-
 :::`;
 
 export const Tabs: StoryObj = {
@@ -172,16 +128,7 @@ export const Tabs: StoryObj = {
 // Timeline
 // ---------------------------------------------------------------------------
 
-const timelineSource = `---
-hero:
-  title:
-    - "Timeline Block"
----
-
-::: chapter {#demo}
-## Regulatory Timeline
-
-::: timeline
+const timelineSource = `::: timeline
 legend:
 - regulatory | #0f766e
 - enforcement | #dc2626
@@ -193,8 +140,6 @@ legend:
 - Sep 2024 | Updated guidance on digital asset contract classification | guidance
 - Nov 2024 | Record fine for non-compliant data processing agreements | enforcement
 - Jan 2025 | New model contractual clauses published by ICC | guidance
-:::
-
 :::`;
 
 export const Timeline: StoryObj = {
@@ -205,23 +150,9 @@ export const Timeline: StoryObj = {
 // CTA
 // ---------------------------------------------------------------------------
 
-const ctaSource = `---
-hero:
-  title:
-    - "CTA Block"
----
-
-::: chapter {#demo, gradient: true, centered: true}
-## Ready to Transform Your Contract Analysis?
-
-Join leading legal teams using AI-powered document analytics to reduce
-review time by 60% and improve compliance accuracy.
-
-::: cta
+const ctaSource = `::: cta
 - [View Full Report](#report) {primary}
 - [Download Summary](#download)
-:::
-
 :::`;
 
 export const CTA: StoryObj = {
@@ -232,23 +163,11 @@ export const CTA: StoryObj = {
 // Signup
 // ---------------------------------------------------------------------------
 
-const signupSource = `---
-hero:
-  title:
-    - "Signup Block"
----
-
-::: chapter {#demo}
-## Stay Connected
-
-::: signup
+const signupSource = `::: signup
 title: Stay Informed
-body: >
-  Get weekly regulatory updates and contract analysis insights
-  delivered to your inbox.
 button: Subscribe to Updates
-:::
-
+Get weekly regulatory updates and contract analysis insights
+delivered to your inbox.
 :::`;
 
 export const Signup: StoryObj = {
@@ -259,22 +178,11 @@ export const Signup: StoryObj = {
 // Corpus Stats
 // ---------------------------------------------------------------------------
 
-const corpusStatsSource = `---
-hero:
-  title:
-    - "Corpus Stats Block"
----
-
-::: chapter {#demo}
-## Corpus Metrics
-
-::: corpus-stats
+const corpusStatsSource = `::: corpus-stats
 - documents | Documents
 - annotations | Annotations
 - contributors | Contributors
 - threads | Discussion Threads
-:::
-
 :::`;
 
 const sampleStats = {
