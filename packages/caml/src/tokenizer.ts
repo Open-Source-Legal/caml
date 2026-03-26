@@ -296,8 +296,10 @@ function parseChapter(token: FenceToken, index: number): CamlChapter {
     blocks: [],
   };
 
-  // Tokenize chapter body into blocks
-  const innerTokens = tokenizeFences(body, 3);
+  // Tokenize chapter body into blocks at depth 4 (:::: fences).
+  // Chapters use ::: (depth 3), blocks inside chapters use :::: (depth 4).
+  // This prevents inner block closing fences from being consumed as chapter closes.
+  const innerTokens = tokenizeFences(body, 4);
 
   for (const innerToken of innerTokens) {
     if (typeof innerToken === "string") {

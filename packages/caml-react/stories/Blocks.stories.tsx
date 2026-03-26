@@ -80,7 +80,7 @@ export const Pills: StoryObj = {
 // ---------------------------------------------------------------------------
 
 const tabsSource = `::: tabs
-:::: tab {label: "North America", status: "94% compliant", color: #0f766e}
+::::: tab {label: "North America", status: "94% compliant", color: #0f766e}
 #### United States {highlight}
 Federal regulations analyzed across **SEC**, **CFPB**, and **OCC**
 frameworks. State-level variations identified in Delaware, New York,
@@ -94,9 +94,9 @@ law provinces.
 \u00a7 SEC EDGAR
 \u00a7 CFPB Regulations
 \u00a7 CSA National Instruments
-::::
+:::::
 
-:::: tab {label: "European Union", status: "87% compliant", color: #7c3aed}
+::::: tab {label: "European Union", status: "87% compliant", color: #7c3aed}
 #### GDPR Impact on Contracts {highlight}
 Data processing agreements reviewed for **Article 28** compliance.
 Standard contractual clauses updated per June 2021 implementing decision.
@@ -108,16 +108,16 @@ cost transparency, and product governance requirements.
 \u00a7 EUR-Lex
 \u00a7 ESMA Guidelines
 \u00a7 EDPB Opinions
-::::
+:::::
 
-:::: tab {label: "Asia-Pacific", status: "In Progress", color: #ea580c}
+::::: tab {label: "Asia-Pacific", status: "In Progress", color: #ea580c}
 #### Cross-Border Considerations
 Analysis of bilateral investment treaties and free trade agreement
 provisions affecting contract enforcement across APAC jurisdictions.
 
 \u00a7 HKEX Listing Rules
 \u00a7 ASIC Regulatory Guides
-::::
+:::::
 :::`;
 
 export const Tabs: StoryObj = {

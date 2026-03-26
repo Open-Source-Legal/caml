@@ -112,10 +112,11 @@ function parsePillItem(raw: string): CamlPillItem {
 // ---------------------------------------------------------------------------
 
 function parseTabs(_attrs: Record<string, string>, body: string): CamlTabs {
-  // Split on :::: sub-fences
+  // Split on ::::: sub-fences (depth 5).
+  // Tabs block uses :::: (depth 4), tab sub-fences use ::::: (depth 5).
   const tabs: CamlTab[] = [];
-  const tabPattern = /^::::\s*tab\s*\{(.*?)\}\s*$/;
-  const closePattern = /^::::\s*$/;
+  const tabPattern = /^:::::\s*tab\s*\{(.*?)\}\s*$/;
+  const closePattern = /^:::::\s*$/;
 
   const lines = body.split("\n");
   let currentTabAttrs: string | null = null;

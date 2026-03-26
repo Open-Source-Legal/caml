@@ -4,11 +4,9 @@
  * Covers: frontmatter extraction, chapter parsing, block type parsing,
  * edge cases (unclosed fences, empty input, malformed YAML).
  *
- * NOTE: The CAML parser uses a single-depth fence tokenizer. Blocks at the
- * top level (::: block) are parsed independently. When blocks appear inside
- * a chapter (::: chapter ... ::: block ... ::: :::), the block's closing
- * fence is consumed as the chapter's close, and the block content is parsed
- * in a second pass on the chapter body. Tests reflect this two-pass design.
+ * NOTE: Top-level blocks use ::: (depth 3) fences. Blocks nested inside
+ * chapters use :::: (depth 4) fences to avoid closing-fence ambiguity.
+ * Tabs inside a tabs block also use :::: fences.
  */
 import { describe, it, expect } from "vitest";
 import { parseCaml } from "../src/index";
@@ -198,17 +196,17 @@ Content
     it("should parse tabs block with sections and sources", () => {
       const source = `::: tabs
 
-:::: tab {label: "Risk", status: High, color: #dc2626}
+::::: tab {label: "Risk", status: High, color: #dc2626}
 #### Key Risks {highlight}
 Supply chain disruption risk.
 
 § Agreement-A.pdf
-::::
+:::::
 
-:::: tab {label: "Compliance", color: #16a34a}
+::::: tab {label: "Compliance", color: #16a34a}
 #### Regulatory Alignment
 All agreements comply.
-::::
+:::::
 
 :::`;
 
@@ -388,6 +386,48 @@ This is unknown content.
 
       const doc = parseCaml(source);
       expect(doc.chapters).toEqual([]);
+    });
+
+    it("should parse :::: blocks nested inside ::: chapters", () => {
+      const source = `::: chapter {#demo, theme: dark}
+## Dark Section
+
+Some intro prose.
+
+:::: cards {columns: 2}
+- **Item One** | meta | #0f766e
+  Body text.
+  ~ Footer
+- **Item Two** | meta | #7c3aed
+  Body text.
+::::
+
+:::: timeline
+legend:
+- regulatory | #0f766e
+
+- Jan 2024 | Test event | regulatory
+::::
+
+:::`;
+
+      const doc = parseCaml(source);
+      expect(doc.chapters.length).toBe(1);
+      const ch = doc.chapters[0];
+      expect(ch.theme).toBe("dark");
+      expect(ch.title).toBe("Dark Section");
+      expect(ch.blocks.length).toBe(3);
+      expect(ch.blocks[0].type).toBe("prose");
+      expect(ch.blocks[1].type).toBe("cards");
+      expect(ch.blocks[2].type).toBe("timeline");
+
+      const cards = ch.blocks[1] as CamlCards;
+      expect(cards.columns).toBe(2);
+      expect(cards.items.length).toBe(2);
+
+      const timeline = ch.blocks[2] as CamlTimeline;
+      expect(timeline.items.length).toBe(1);
+      expect(timeline.legend.length).toBe(1);
     });
 
     it("should parse multiple top-level blocks into separate implicit chapters", () => {
