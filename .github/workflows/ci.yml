@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build packages
+        run: yarn build
+
+      - name: Run unit tests (vitest)
+        run: yarn test
+
+      - name: Install Playwright browsers
+        working-directory: packages/caml-react
+        run: npx playwright install --with-deps chromium
+
+      - name: Run component tests (Playwright CT)
+        working-directory: packages/caml-react
+        run: npx playwright test -c playwright-ct.config.ts --reporter=list
+
+      - name: TypeScript type check
+        run: |
+          npx tsc --project packages/caml/tsconfig.json --noEmit
+          npx tsc --project packages/caml-react/tsconfig.json --noEmit

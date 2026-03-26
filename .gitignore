@@ -12,3 +12,4 @@ dist/
 # Playwright
 playwright/.cache/
 test-results/
+packages/caml-react/playwright/.cache/
