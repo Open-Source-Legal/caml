@@ -360,6 +360,93 @@ legend:
       expect(block.mapType).toBe("us");
     });
 
+    it("should parse map with counts and links in categorical mode", () => {
+      const source = `::: map {type: us}
+
+legend:
+- Active | #0f766e
+
+- CA | Active | 1247 | /c/legal/california
+- NY | Active | 892 | /c/legal/new-york
+- TX | Active | 56
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.type).toBe("map");
+      expect(block.mode).toBeUndefined();
+      expect(block.states.length).toBe(3);
+      expect(block.states[0].code).toBe("CA");
+      expect(block.states[0].status).toBe("Active");
+      expect(block.states[0].count).toBe(1247);
+      expect(block.states[0].href).toBe("/c/legal/california");
+      expect(block.states[1].code).toBe("NY");
+      expect(block.states[1].count).toBe(892);
+      expect(block.states[1].href).toBe("/c/legal/new-york");
+      expect(block.states[2].code).toBe("TX");
+      expect(block.states[2].count).toBe(56);
+      expect(block.states[2].href).toBeUndefined();
+    });
+
+    it("should parse map with href but no count in categorical mode", () => {
+      const source = `::: map {type: us}
+
+legend:
+- Active | #0f766e
+
+- CA | Active | /c/legal/california
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.states[0].count).toBeUndefined();
+      expect(block.states[0].href).toBe("/c/legal/california");
+    });
+
+    it("should parse heatmap mode with gradient colors", () => {
+      const source = `::: map {type: us, mode: heatmap, low: #dbeafe, high: #1e3a8a}
+
+- CA | 1247
+- NY | 892
+- TX | 634
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.type).toBe("map");
+      expect(block.mode).toBe("heatmap");
+      expect(block.lowColor).toBe("#dbeafe");
+      expect(block.highColor).toBe("#1e3a8a");
+      expect(block.legend.length).toBe(0);
+      expect(block.states.length).toBe(3);
+      expect(block.states[0].code).toBe("CA");
+      expect(block.states[0].status).toBe("1247");
+      expect(block.states[0].count).toBe(1247);
+      expect(block.states[1].count).toBe(892);
+      expect(block.states[2].count).toBe(634);
+    });
+
+    it("should parse heatmap mode with links", () => {
+      const source = `::: map {type: us, mode: heatmap, low: #dbeafe, high: #1e3a8a}
+
+- CA | 1247 | /c/legal/california
+- NY | 892
+- TX | 634 | https://example.com
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.mode).toBe("heatmap");
+      expect(block.states[0].href).toBe("/c/legal/california");
+      expect(block.states[0].count).toBe(1247);
+      expect(block.states[1].href).toBeUndefined();
+      expect(block.states[2].href).toBe("https://example.com");
+    });
+
     it("should parse case-history block with entries and details", () => {
       const source = `::: case-history
 

@@ -381,6 +381,12 @@ function parseAnnotationEmbed(
 
 function parseMap(attrs: Record<string, string>, body: string): CamlMap {
   const mapType = attrs.type || "us";
+  const mode =
+    attrs.mode === "heatmap"
+      ? ("heatmap" as const)
+      : undefined;
+  const lowColor = attrs.low || undefined;
+  const highColor = attrs.high || undefined;
   const legend: CamlMapLegendItem[] = [];
   const states: CamlMapStateItem[] = [];
   let inLegend = false;
@@ -414,19 +420,39 @@ function parseMap(attrs: Record<string, string>, body: string): CamlMap {
     }
 
     if (!inLegend && trimmed.startsWith("- ")) {
-      const stateMatch = trimmed
-        .slice(2)
-        .match(/^([A-Z]{2})\s*\|\s*(.+)$/);
-      if (stateMatch) {
-        states.push({
-          code: stateMatch[1],
-          status: stateMatch[2].trim(),
-        });
+      const parts = trimmed.slice(2).split("|").map((s) => s.trim());
+      const codeMatch = parts[0]?.match(/^[A-Z]{2}$/);
+
+      if (codeMatch && parts.length >= 2) {
+        const item: CamlMapStateItem = {
+          code: parts[0],
+          status: parts[1],
+        };
+
+        if (mode === "heatmap") {
+          // Heatmap: - CODE | value | href?
+          const numVal = parseFloat(parts[1]);
+          if (!isNaN(numVal)) item.count = numVal;
+          if (parts[2]) item.href = parts[2];
+        } else {
+          // Categorical: - CODE | status | count? | href?
+          if (parts[2]) {
+            const num = parseFloat(parts[2]);
+            if (!isNaN(num)) {
+              item.count = num;
+            } else {
+              item.href = parts[2];
+            }
+          }
+          if (parts[3]) item.href = parts[3];
+        }
+
+        states.push(item);
       }
     }
   }
 
-  return { type: "map", mapType, legend, states };
+  return { type: "map", mapType, mode, lowColor, highColor, legend, states };
 }
 
 // ---------------------------------------------------------------------------

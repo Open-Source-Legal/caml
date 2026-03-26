@@ -155,12 +155,17 @@ export interface CamlMapLegendItem {
 
 export interface CamlMapStateItem {
   code: string; // 2-letter state code (CA, NY, TX, etc.)
-  status: string; // Must match a legend label
+  status: string; // Category label OR numeric string in heatmap mode
+  count?: number; // Optional display count
+  href?: string; // Optional link URL
 }
 
 export interface CamlMap {
   type: "map";
   mapType: string; // "us" for now, extensible later
+  mode?: "categorical" | "heatmap"; // Defaults to "categorical"
+  lowColor?: string; // Heatmap gradient start color
+  highColor?: string; // Heatmap gradient end color
   legend: CamlMapLegendItem[];
   states: CamlMapStateItem[];
 }

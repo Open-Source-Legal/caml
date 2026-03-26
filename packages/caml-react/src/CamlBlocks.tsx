@@ -69,10 +69,15 @@ import {
   MapContainer,
   MapGrid,
   MapTile,
+  MapTileCount,
+  MapTileLink,
   MapTileEmpty,
   MapLegend,
   MapLegendItem as MapLegendItemStyled,
   MapTooltip,
+  MapHeatmapLegend,
+  MapHeatmapGradient,
+  MapHeatmapLabel,
   CaseHistoryContainer,
   CaseHistoryHeader,
   CaseHistoryTitleRow,
@@ -438,18 +443,71 @@ function CorpusStatsBlock({
 // Map (Tile Grid)
 // ---------------------------------------------------------------------------
 
+/**
+ * Interpolate between two hex colors. `t` ranges from 0 (low) to 1 (high).
+ */
+function interpolateColor(low: string, high: string, t: number): string {
+  const parse = (hex: string) => {
+    const h = hex.replace("#", "");
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16),
+    ];
+  };
+  const [r1, g1, b1] = parse(low);
+  const [r2, g2, b2] = parse(high);
+  const clamp = (v: number) => Math.max(0, Math.min(255, Math.round(v)));
+  const r = clamp(r1 + (r2 - r1) * t);
+  const g = clamp(g1 + (g2 - g1) * t);
+  const b = clamp(b1 + (b2 - b1) * t);
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
 function MapBlock({ block }: { block: CamlMap }) {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const isHeatmap = block.mode === "heatmap";
 
-  // Build a map from status label -> color using the legend
+  // Build a map from status label -> color using the legend (categorical mode)
   const colorMap = new Map(
     block.legend.map((l) => [l.label.toLowerCase(), l.color])
   );
 
-  // Build a map from state code -> status
-  const stateStatusMap = new Map(
-    block.states.map((s) => [s.code, s.status])
+  // Build a map from state code -> state item for quick lookup
+  const stateItemMap = new Map(
+    block.states.map((s) => [s.code, s])
   );
+
+  // For heatmap mode, compute min/max values
+  let heatmapMin = 0;
+  let heatmapMax = 0;
+  if (isHeatmap) {
+    const values = block.states
+      .map((s) => s.count)
+      .filter((v): v is number => v != null);
+    if (values.length > 0) {
+      heatmapMin = Math.min(...values);
+      heatmapMax = Math.max(...values);
+    }
+  }
+
+  const lowColor = block.lowColor || "#e0f2fe";
+  const highColor = block.highColor || "#0c4a6e";
+
+  /**
+   * Resolve the fill color for a state tile.
+   */
+  function getStateColor(stateItem: { status: string; count?: number } | undefined): string {
+    if (!stateItem) return NEUTRAL_STATE_COLOR;
+
+    if (isHeatmap && stateItem.count != null) {
+      const range = heatmapMax - heatmapMin;
+      const t = range > 0 ? (stateItem.count - heatmapMin) / range : 0.5;
+      return interpolateColor(lowColor, highColor, t);
+    }
+
+    return colorMap.get(stateItem.status.toLowerCase()) || NEUTRAL_STATE_COLOR;
+  }
 
   // Build the grid: create a 2D lookup from "col,row" -> state entry
   const gridLookup = new Map(
@@ -461,25 +519,57 @@ function MapBlock({ block }: { block: CamlMap }) {
     for (let col = 0; col < GRID_COLS; col++) {
       const entry = gridLookup.get(`${col},${row}`);
       if (entry) {
-        const status = stateStatusMap.get(entry.code);
-        const fillColor = status
-          ? colorMap.get(status.toLowerCase()) || NEUTRAL_STATE_COLOR
-          : NEUTRAL_STATE_COLOR;
+        const stateItem = stateItemMap.get(entry.code);
+        const fillColor = getStateColor(stateItem);
+        const hasLink = stateItem?.href && isSafeHref(stateItem.href);
+
+        const tileContent = (
+          <>
+            {entry.code}
+            {stateItem?.count != null && (
+              <MapTileCount data-testid={`map-count-${entry.code}`}>
+                {stateItem.count.toLocaleString()}
+              </MapTileCount>
+            )}
+          </>
+        );
+
+        const tooltipLines: string[] = [entry.name];
+        if (isHeatmap && stateItem?.count != null) {
+          tooltipLines.push(stateItem.count.toLocaleString());
+        } else if (stateItem?.status) {
+          tooltipLines.push(stateItem.status);
+          if (stateItem.count != null) {
+            tooltipLines.push(`Count: ${stateItem.count.toLocaleString()}`);
+          }
+        }
+        if (hasLink) {
+          tooltipLines.push("Click to view");
+        }
 
         cells.push(
           <MapTile
             key={`${col}-${row}`}
             $color={fillColor}
+            $clickable={!!hasLink}
             data-testid={`map-tile-${entry.code}`}
             onMouseEnter={() => setHoveredState(entry.code)}
             onMouseLeave={() => setHoveredState(null)}
           >
-            {entry.code}
+            {hasLink ? (
+              <MapTileLink
+                href={stateItem!.href}
+                target={isExternalHref(stateItem!.href!) ? "_blank" : undefined}
+                rel={isExternalHref(stateItem!.href!) ? "noopener noreferrer" : undefined}
+                data-testid={`map-link-${entry.code}`}
+              >
+                {tileContent}
+              </MapTileLink>
+            ) : (
+              tileContent
+            )}
             {hoveredState === entry.code && (
-              <MapTooltip>
-                {entry.name}
-                {status ? ` \u2014 ${status}` : ""}
-              </MapTooltip>
+              <MapTooltip>{tooltipLines.join(" \u2014 ")}</MapTooltip>
             )}
           </MapTile>
         );
@@ -494,6 +584,14 @@ function MapBlock({ block }: { block: CamlMap }) {
       <MapGrid $cols={GRID_COLS} $rows={GRID_ROWS}>
         {cells}
       </MapGrid>
+
+      {isHeatmap && block.states.length > 0 && (
+        <MapHeatmapLegend data-testid="map-heatmap-legend">
+          <MapHeatmapLabel>{heatmapMin.toLocaleString()}</MapHeatmapLabel>
+          <MapHeatmapGradient $low={lowColor} $high={highColor} />
+          <MapHeatmapLabel>{heatmapMax.toLocaleString()}</MapHeatmapLabel>
+        </MapHeatmapLegend>
+      )}
 
       {block.legend.length > 0 && (
         <MapLegend data-testid="map-legend">

@@ -743,20 +743,23 @@ export const MapGrid = styled.div<{ $cols: number; $rows: number }>`
   width: 100%;
 `;
 
-export const MapTile = styled.div<{ $color?: string }>`
+export const MapTile = styled.div<{ $color?: string; $clickable?: boolean }>`
   aspect-ratio: 1;
   border-radius: 3px;
   background: ${({ $color }) => $color || "transparent"};
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 0.5625rem;
   font-weight: 600;
   color: white;
-  cursor: default;
+  cursor: ${({ $clickable }) => ($clickable ? "pointer" : "default")};
   position: relative;
   transition: transform 0.15s, box-shadow 0.15s;
   user-select: none;
+  gap: 0;
+  line-height: 1;
 
   &:hover {
     transform: scale(1.15);
@@ -794,6 +797,27 @@ export const MapLegendItem = styled.span<{ $color: string }>`
   }
 `;
 
+export const MapTileCount = styled.span`
+  font-size: 0.4375rem;
+  font-weight: 500;
+  opacity: 0.85;
+  line-height: 1;
+  margin-top: 1px;
+`;
+
+export const MapTileLink = styled.a`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+  gap: 0;
+  line-height: 1;
+`;
+
 export const MapTooltip = styled.div`
   position: absolute;
   bottom: calc(100% + 6px);
@@ -819,6 +843,30 @@ export const MapTooltip = styled.div`
     border: 4px solid transparent;
     border-top-color: ${({ theme }) => theme.caml.colors.heading};
   }
+`;
+
+export const MapHeatmapLegend = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+`;
+
+export const MapHeatmapGradient = styled.div<{
+  $low: string;
+  $high: string;
+}>`
+  width: 120px;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(to right, ${({ $low }) => $low}, ${({ $high }) => $high});
+`;
+
+export const MapHeatmapLabel = styled.span`
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.caml.colors.textSecondary};
+  font-variant-numeric: tabular-nums;
 `;
 
 // ---------------------------------------------------------------------------

@@ -237,6 +237,46 @@ export const USMap: StoryObj = {
 };
 
 // ---------------------------------------------------------------------------
+// US Map (Heatmap)
+// ---------------------------------------------------------------------------
+
+const usMapHeatmapSource = `::: map {type: us, mode: heatmap, low: #dbeafe, high: #1e3a8a}
+- CA | 1247
+- NY | 892
+- TX | 634
+- FL | 421
+- IL | 387
+- PA | 312
+- OH | 278
+- GA | 245
+- NC | 198
+- MI | 167
+:::`;
+
+export const USMapHeatmap: StoryObj = {
+  render: () => <CamlShowcase source={usMapHeatmapSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// US Map with Counts and Links
+// ---------------------------------------------------------------------------
+
+const usMapWithCountsSource = `::: map {type: us}
+legend:
+- Compliant | #0f766e
+- Non-compliant | #dc2626
+
+- CA | Compliant | 247
+- NY | Compliant | 189 | /c/legal/new-york
+- TX | Non-compliant | 56 | /c/legal/texas
+- FL | Compliant | 134
+:::`;
+
+export const USMapWithCounts: StoryObj = {
+  render: () => <CamlShowcase source={usMapWithCountsSource} />,
+};
+
+// ---------------------------------------------------------------------------
 // Case History
 // ---------------------------------------------------------------------------
 

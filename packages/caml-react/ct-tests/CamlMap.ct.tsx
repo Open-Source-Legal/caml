@@ -76,3 +76,80 @@ test("map renders unassigned states as neutral tiles", async ({ mount }) => {
   const flTile = component.getByTestId("map-tile-FL");
   await expect(flTile).toBeVisible();
 });
+
+test("heatmap renders with gradient colors and legend bar", async ({
+  mount,
+  page,
+}) => {
+  const block: CamlMap = {
+    type: "map",
+    mapType: "us",
+    mode: "heatmap",
+    lowColor: "#dbeafe",
+    highColor: "#1e3a8a",
+    legend: [],
+    states: [
+      { code: "CA", status: "1247", count: 1247 },
+      { code: "NY", status: "892", count: 892 },
+      { code: "TX", status: "100", count: 100 },
+    ],
+  };
+
+  await mount(
+    <CamlTestWrapper>
+      <CamlBlockRenderer block={block} />
+    </CamlTestWrapper>
+  );
+
+  // All heatmap tiles are visible
+  await expect(page.getByTestId("map-tile-CA")).toBeVisible();
+  await expect(page.getByTestId("map-tile-NY")).toBeVisible();
+  await expect(page.getByTestId("map-tile-TX")).toBeVisible();
+
+  // Heatmap legend (gradient bar with min/max labels)
+  const legend = page.getByTestId("map-heatmap-legend");
+  await expect(legend).toBeVisible();
+  await expect(legend.getByText("100")).toBeVisible();
+  await expect(legend.getByText("1,247")).toBeVisible();
+});
+
+test("map displays count on tile", async ({ mount, page }) => {
+  const block: CamlMap = {
+    type: "map",
+    mapType: "us",
+    legend: [{ label: "Active", color: "#0f766e" }],
+    states: [{ code: "CA", status: "Active", count: 247 }],
+  };
+
+  await mount(
+    <CamlTestWrapper>
+      <CamlBlockRenderer block={block} />
+    </CamlTestWrapper>
+  );
+
+  // Count should be displayed on the tile
+  await expect(page.getByTestId("map-count-CA")).toBeVisible();
+  await expect(page.getByTestId("map-count-CA")).toHaveText("247");
+});
+
+test("linked tile renders as clickable anchor", async ({ mount, page }) => {
+  const block: CamlMap = {
+    type: "map",
+    mapType: "us",
+    legend: [{ label: "Active", color: "#0f766e" }],
+    states: [
+      { code: "NY", status: "Active", count: 189, href: "/c/legal/new-york" },
+    ],
+  };
+
+  await mount(
+    <CamlTestWrapper>
+      <CamlBlockRenderer block={block} />
+    </CamlTestWrapper>
+  );
+
+  // Link should be present with correct href
+  const link = page.getByTestId("map-link-NY");
+  await expect(link).toBeVisible();
+  await expect(link).toHaveAttribute("href", "/c/legal/new-york");
+});
