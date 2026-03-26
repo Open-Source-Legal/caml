@@ -820,3 +820,169 @@ export const MapTooltip = styled.div`
     border-top-color: ${({ theme }) => theme.caml.colors.heading};
   }
 `;
+
+// ---------------------------------------------------------------------------
+// Case History
+// ---------------------------------------------------------------------------
+
+export const CaseHistoryContainer = styled.div`
+  border: 1px solid ${({ theme }) => theme.caml.colors.border};
+  border-radius: 12px;
+  overflow: hidden;
+  background: ${({ theme }) => theme.caml.colors.surface};
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+`;
+
+export const CaseHistoryHeader = styled.div`
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid ${({ theme }) => theme.caml.colors.border};
+  background: ${({ theme }) => theme.caml.colors.surfaceHover};
+`;
+
+export const CaseHistoryTitleRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+`;
+
+export const CaseHistoryTitle = styled.h3`
+  font-family: ${({ theme }) => theme.caml.typography.fontFamilySerif};
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.caml.colors.heading};
+  margin: 0;
+`;
+
+export const CaseHistoryDocket = styled.span`
+  font-size: 0.8125rem;
+  font-family: "SF Mono", Monaco, monospace;
+  color: ${({ theme }) => theme.caml.colors.textSecondary};
+  margin-top: 0.25rem;
+`;
+
+export const CaseHistoryStatusBadge = styled.span<{ $color?: string }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: ${({ $color }) => ($color ? `${$color}15` : "rgba(100,116,139,0.1)")};
+  color: ${({ $color, theme }) => $color || theme.caml.colors.textSecondary};
+  white-space: nowrap;
+`;
+
+export const CaseHistoryTimeline = styled.div`
+  position: relative;
+  padding: 1.5rem;
+  padding-left: 3rem;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 1.75rem;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    width: 2px;
+    background: ${({ theme }) => theme.caml.colors.border};
+  }
+`;
+
+export const CaseHistoryEntry = styled.div`
+  position: relative;
+  padding-bottom: 1.5rem;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+`;
+
+export const CaseHistoryDot = styled.span<{ $color?: string }>`
+  position: absolute;
+  left: -1.75rem;
+  top: 0.25rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: ${({ $color, theme }) => $color || theme.caml.colors.textMuted};
+  border: 2px solid ${({ theme }) => theme.caml.colors.surface};
+  box-shadow: 0 0 0 2px
+    ${({ $color, theme }) =>
+      $color ? `${$color}30` : theme.caml.colors.border};
+`;
+
+export const CaseHistoryEntryCard = styled.div`
+  background: ${({ theme }) => theme.caml.colors.surfaceHover};
+  border: 1px solid ${({ theme }) => theme.caml.colors.border};
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+`;
+
+export const CaseHistoryEntryHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.375rem;
+`;
+
+export const CaseHistoryCourtBadge = styled.span<{ $level?: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: ${({ theme }) => theme.caml.colors.accent};
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: ${({ theme }) => theme.caml.colors.accent};
+  }
+`;
+
+export const CaseHistoryOutcome = styled.span<{ $color?: string }>`
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: ${({ $color }) => ($color ? `${$color}15` : "rgba(100,116,139,0.1)")};
+  color: ${({ $color, theme }) => $color || theme.caml.colors.textSecondary};
+`;
+
+export const CaseHistoryMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: ${({ theme }) => theme.caml.colors.textSecondary};
+  margin-bottom: 0.25rem;
+`;
+
+export const CaseHistoryAction = styled.span`
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.caml.colors.heading};
+`;
+
+export const CaseHistoryDetail = styled.p`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.caml.colors.textTertiary};
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+`;

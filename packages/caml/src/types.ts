@@ -165,6 +165,23 @@ export interface CamlMap {
   states: CamlMapStateItem[];
 }
 
+export interface CamlCaseHistoryEntry {
+  courtLevel: string; // "District Court", "Court of Appeals", "Supreme Court"
+  courtName: string; // "S.D.N.Y.", "2nd Circuit", "SCOTUS"
+  date: string; // "2022-03-15"
+  action: string; // "Motion to Dismiss", "Appeal", "Certiorari"
+  outcome: string; // "Denied", "Affirmed", "Granted"
+  detail?: string; // Optional body text
+}
+
+export interface CamlCaseHistory {
+  type: "case-history";
+  title: string; // Case name
+  docket?: string; // Docket number
+  status?: string; // Overall case status
+  entries: CamlCaseHistoryEntry[];
+}
+
 export type CamlBlock =
   | CamlProse
   | CamlCards
@@ -175,7 +192,8 @@ export type CamlBlock =
   | CamlSignup
   | CamlCorpusStats
   | CamlAnnotationEmbed
-  | CamlMap;
+  | CamlMap
+  | CamlCaseHistory;
 
 // ---------------------------------------------------------------------------
 // Chapters

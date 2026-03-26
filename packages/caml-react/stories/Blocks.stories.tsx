@@ -235,3 +235,34 @@ legend:
 export const USMap: StoryObj = {
   render: () => <CamlShowcase source={usMapSource} />,
 };
+
+// ---------------------------------------------------------------------------
+// Case History
+// ---------------------------------------------------------------------------
+
+const caseHistorySource = `::: case-history
+
+title: SEC v. Meridian Capital Partners LLC
+docket: No. 22-cv-04817 (S.D.N.Y.)
+status: Affirmed
+
+- District Court | S.D.N.Y. | 2022-06-10 | SEC Motion for Temporary Restraining Order | Granted
+  Court issued TRO freezing defendant's assets pending investigation into alleged securities fraud under Section 10(b) and Rule 10b-5.
+
+- District Court | S.D.N.Y. | 2022-09-22 | Defendant's Motion to Dismiss | Denied
+  Judge Chen found that the SEC adequately pleaded scienter through circumstantial evidence of insider trading patterns.
+
+- District Court | S.D.N.Y. | 2023-03-15 | Cross-Motions for Summary Judgment | Granted in Part
+  Partial summary judgment for SEC on liability. Disgorgement amount and civil penalties reserved for trial.
+
+- Court of Appeals | 2nd Circuit | 2023-11-08 | Interlocutory Appeal on Disgorgement | Affirmed
+  Panel (3-0) held that disgorgement calculation properly followed Liu v. SEC, 591 U.S. 71 (2020). No abuse of discretion in asset freeze scope.
+
+- Supreme Court | SCOTUS | 2024-03-25 | Petition for Certiorari | Cert Denied
+  Cert petition denied without comment. Justice Thomas noted dissent from denial.
+
+:::`;
+
+export const CaseHistory: StoryObj = {
+  render: () => <CamlShowcase source={caseHistorySource} />,
+};

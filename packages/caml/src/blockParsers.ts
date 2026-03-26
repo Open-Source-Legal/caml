@@ -25,6 +25,8 @@ import type {
   CamlMap,
   CamlMapLegendItem,
   CamlMapStateItem,
+  CamlCaseHistory,
+  CamlCaseHistoryEntry,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -428,6 +430,72 @@ function parseMap(attrs: Record<string, string>, body: string): CamlMap {
 }
 
 // ---------------------------------------------------------------------------
+// Case History
+// ---------------------------------------------------------------------------
+
+function parseCaseHistory(
+  _attrs: Record<string, string>,
+  body: string
+): CamlCaseHistory {
+  const result: CamlCaseHistory = {
+    type: "case-history",
+    title: "",
+    entries: [],
+  };
+
+  const lines = body.split("\n");
+  let currentEntry: CamlCaseHistoryEntry | null = null;
+  let detailLines: string[] = [];
+
+  const flushEntry = () => {
+    if (currentEntry) {
+      if (detailLines.length > 0) {
+        currentEntry.detail = detailLines.join(" ").trim();
+      }
+      result.entries.push(currentEntry);
+      currentEntry = null;
+      detailLines = [];
+    }
+  };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Key-value header
+    const kvMatch = trimmed.match(/^(title|docket|status):\s*(.+)$/);
+    if (kvMatch) {
+      const key = kvMatch[1] as "title" | "docket" | "status";
+      result[key] = kvMatch[2].trim();
+      continue;
+    }
+
+    // Entry line: - Court Level | Court Name | Date | Action | Outcome
+    if (trimmed.startsWith("- ")) {
+      flushEntry();
+      const parts = trimmed.slice(2).split("|").map((s) => s.trim());
+      if (parts.length >= 5) {
+        currentEntry = {
+          courtLevel: parts[0],
+          courtName: parts[1],
+          date: parts[2],
+          action: parts[3],
+          outcome: parts[4],
+        };
+      }
+      continue;
+    }
+
+    // Detail continuation
+    if (trimmed && currentEntry) {
+      detailLines.push(trimmed);
+    }
+  }
+
+  flushEntry();
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // Dispatcher
 // ---------------------------------------------------------------------------
 
@@ -458,6 +526,8 @@ export function parseBlock(
       return parseAnnotationEmbed(attrs, body);
     case "map":
       return parseMap(attrs, body);
+    case "case-history":
+      return parseCaseHistory(attrs, body);
     default:
       // Unknown block type — treat as prose
       return { type: "prose", content: body };

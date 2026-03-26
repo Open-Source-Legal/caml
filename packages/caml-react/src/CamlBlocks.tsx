@@ -18,6 +18,7 @@ import type {
   CamlCorpusStats,
   CamlProse,
   CamlMap,
+  CamlCaseHistory,
 } from "@os-legal/caml";
 import { isSafeHref, isExternalHref } from "./safeHref";
 import { CamlMarkdown } from "./CamlMarkdown";
@@ -72,6 +73,22 @@ import {
   MapLegend,
   MapLegendItem as MapLegendItemStyled,
   MapTooltip,
+  CaseHistoryContainer,
+  CaseHistoryHeader,
+  CaseHistoryTitleRow,
+  CaseHistoryTitle,
+  CaseHistoryDocket,
+  CaseHistoryStatusBadge,
+  CaseHistoryTimeline,
+  CaseHistoryEntry,
+  CaseHistoryDot,
+  CaseHistoryEntryCard,
+  CaseHistoryEntryHeader,
+  CaseHistoryCourtBadge,
+  CaseHistoryOutcome,
+  CaseHistoryMeta,
+  CaseHistoryAction,
+  CaseHistoryDetail,
 } from "./styles";
 import {
   US_STATES_GRID,
@@ -124,6 +141,8 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
       );
     case "map":
       return <MapBlock block={block} />;
+    case "case-history":
+      return <CaseHistoryBlock block={block} />;
     default:
       return null;
   }
@@ -486,5 +505,81 @@ function MapBlock({ block }: { block: CamlMap }) {
         </MapLegend>
       )}
     </MapContainer>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Case History
+// ---------------------------------------------------------------------------
+
+const GREEN_OUTCOMES = ["granted", "affirmed", "sustained", "approved"];
+const RED_OUTCOMES = ["denied", "reversed", "overruled", "rejected"];
+const AMBER_OUTCOMES = ["remanded", "partial", "pending", "modified"];
+
+function getOutcomeColor(outcome: string): string {
+  const lower = outcome.toLowerCase();
+  if (GREEN_OUTCOMES.some((w) => lower.includes(w))) return "#16a34a";
+  if (RED_OUTCOMES.some((w) => lower.includes(w))) return "#dc2626";
+  if (AMBER_OUTCOMES.some((w) => lower.includes(w))) return "#f59e0b";
+  return "#64748b";
+}
+
+function CaseHistoryBlock({ block }: { block: CamlCaseHistory }) {
+  const statusColor = block.status ? getOutcomeColor(block.status) : undefined;
+
+  return (
+    <CaseHistoryContainer data-testid="case-history-container">
+      <CaseHistoryHeader>
+        <CaseHistoryTitleRow>
+          <div>
+            <CaseHistoryTitle data-testid="case-history-title">
+              {block.title}
+            </CaseHistoryTitle>
+            {block.docket && (
+              <CaseHistoryDocket data-testid="case-history-docket">
+                {block.docket}
+              </CaseHistoryDocket>
+            )}
+          </div>
+          {block.status && (
+            <CaseHistoryStatusBadge
+              $color={statusColor}
+              data-testid="case-history-status"
+            >
+              {block.status}
+            </CaseHistoryStatusBadge>
+          )}
+        </CaseHistoryTitleRow>
+      </CaseHistoryHeader>
+
+      <CaseHistoryTimeline data-testid="case-history-timeline">
+        {block.entries.map((entry, i) => {
+          const outcomeColor = getOutcomeColor(entry.outcome);
+          return (
+            <CaseHistoryEntry key={i} data-testid={`case-history-entry-${i}`}>
+              <CaseHistoryDot $color={outcomeColor} />
+              <CaseHistoryEntryCard>
+                <CaseHistoryEntryHeader>
+                  <CaseHistoryCourtBadge $level={entry.courtLevel}>
+                    {entry.courtLevel}
+                  </CaseHistoryCourtBadge>
+                  <CaseHistoryOutcome $color={outcomeColor}>
+                    {entry.outcome}
+                  </CaseHistoryOutcome>
+                </CaseHistoryEntryHeader>
+                <CaseHistoryMeta>
+                  <span>{entry.courtName}</span>
+                  <span>{entry.date}</span>
+                </CaseHistoryMeta>
+                <CaseHistoryAction>{entry.action}</CaseHistoryAction>
+                {entry.detail && (
+                  <CaseHistoryDetail>{entry.detail}</CaseHistoryDetail>
+                )}
+              </CaseHistoryEntryCard>
+            </CaseHistoryEntry>
+          );
+        })}
+      </CaseHistoryTimeline>
+    </CaseHistoryContainer>
   );
 }

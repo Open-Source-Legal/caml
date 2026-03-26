@@ -28,4 +28,6 @@ export type {
   CamlMap,
   CamlMapLegendItem,
   CamlMapStateItem,
+  CamlCaseHistory,
+  CamlCaseHistoryEntry,
 } from "./types";

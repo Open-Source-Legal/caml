@@ -20,6 +20,7 @@ import type {
   CamlCorpusStats,
   CamlProse,
   CamlMap,
+  CamlCaseHistory,
 } from "../src/types";
 
 describe("parseCaml", () => {
@@ -357,6 +358,71 @@ legend:
       const doc = parseCaml(source);
       const block = doc.chapters[0].blocks[0] as CamlMap;
       expect(block.mapType).toBe("us");
+    });
+
+    it("should parse case-history block with entries and details", () => {
+      const source = `::: case-history
+
+title: Smith v. Jones Corp.
+docket: No. 22-1234
+status: Cert Denied
+
+- District Court | S.D.N.Y. | 2022-03-15 | Defendant's Motion to Dismiss | Denied
+  Judge Martinez ruled that plaintiff adequately stated a claim under Section 10(b).
+
+- Court of Appeals | 2nd Circuit | 2023-06-20 | Appeal | Affirmed
+  Panel (2-1) affirmed district court.
+
+- Supreme Court | SCOTUS | 2024-01-08 | Certiorari | Denied
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlCaseHistory;
+      expect(block.type).toBe("case-history");
+      expect(block.title).toBe("Smith v. Jones Corp.");
+      expect(block.docket).toBe("No. 22-1234");
+      expect(block.status).toBe("Cert Denied");
+      expect(block.entries.length).toBe(3);
+
+      // First entry with detail
+      expect(block.entries[0].courtLevel).toBe("District Court");
+      expect(block.entries[0].courtName).toBe("S.D.N.Y.");
+      expect(block.entries[0].date).toBe("2022-03-15");
+      expect(block.entries[0].action).toBe("Defendant's Motion to Dismiss");
+      expect(block.entries[0].outcome).toBe("Denied");
+      expect(block.entries[0].detail).toContain("Judge Martinez");
+
+      // Second entry with detail
+      expect(block.entries[1].courtLevel).toBe("Court of Appeals");
+      expect(block.entries[1].courtName).toBe("2nd Circuit");
+      expect(block.entries[1].outcome).toBe("Affirmed");
+      expect(block.entries[1].detail).toContain("Panel (2-1)");
+
+      // Third entry without detail
+      expect(block.entries[2].courtLevel).toBe("Supreme Court");
+      expect(block.entries[2].courtName).toBe("SCOTUS");
+      expect(block.entries[2].outcome).toBe("Denied");
+      expect(block.entries[2].detail).toBeUndefined();
+    });
+
+    it("should parse case-history block with minimal fields", () => {
+      const source = `::: case-history
+
+title: Doe v. State
+
+- Trial Court | County Court | 2023-01-01 | Verdict | Guilty
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlCaseHistory;
+      expect(block.type).toBe("case-history");
+      expect(block.title).toBe("Doe v. State");
+      expect(block.docket).toBeUndefined();
+      expect(block.status).toBeUndefined();
+      expect(block.entries.length).toBe(1);
+      expect(block.entries[0].courtLevel).toBe("Trial Court");
     });
 
     it("should parse prose with pullquotes", () => {
