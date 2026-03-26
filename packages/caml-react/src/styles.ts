@@ -24,7 +24,7 @@ export const ArticleContainer = styled.article`
   min-height: 100vh;
   color: ${({ theme }) => theme.caml.colors.textPrimary};
   font-family: ${({ theme }) => theme.caml.typography.fontFamilySans};
-  line-height: 1.7;
+  line-height: 1.8;
   font-size: 1.0625rem;
   overflow-x: hidden;
 `;
@@ -35,8 +35,8 @@ export const ArticleContainer = styled.article`
 
 export const HeroSection = styled.header`
   text-align: center;
-  padding: 4rem 1.5rem 3rem;
-  max-width: 800px;
+  padding: 4rem 1.5rem 2.5rem;
+  max-width: 720px;
   margin: 0 auto;
 `;
 
@@ -96,9 +96,12 @@ export const ChapterSection = styled.section<{
   $gradient?: boolean;
   $centered?: boolean;
 }>`
-  padding: 4rem 1.5rem;
+  padding: 3rem 1.5rem;
   max-width: 800px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 
   ${({ $centered }) =>
     $centered &&
@@ -112,8 +115,7 @@ export const ChapterSection = styled.section<{
       background: ${({ theme }) => theme.caml.colors.heading};
       color: ${({ theme }) => theme.caml.colors.border};
       max-width: 100%;
-      padding-left: calc((100% - 800px) / 2 + 1.5rem);
-      padding-right: calc((100% - 800px) / 2 + 1.5rem);
+      padding: 3rem calc((100% - 720px) / 2 + 2rem);
     `}
 
   ${({ $gradient }) =>
@@ -126,27 +128,31 @@ export const ChapterSection = styled.section<{
       );
       color: ${({ theme }) => theme.caml.colors.border};
       max-width: 100%;
-      padding-left: calc((100% - 800px) / 2 + 1.5rem);
-      padding-right: calc((100% - 800px) / 2 + 1.5rem);
+      padding: 3rem calc((100% - 720px) / 2 + 2rem);
     `}
 `;
 
+export const ChapterHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 export const ChapterKicker = styled.p<{ $dark?: boolean }>`
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: ${({ $dark, theme }) =>
     $dark ? theme.caml.colors.textMuted : theme.caml.colors.textSecondary};
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 `;
 
 export const ChapterTitle = styled.h2<{ $dark?: boolean }>`
   font-family: ${({ theme }) => theme.caml.typography.fontFamilySerif};
-  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  font-size: clamp(1.625rem, 4vw, 2.5rem);
   font-weight: 700;
   line-height: 1.2;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   color: ${({ $dark, theme }) =>
     $dark ? theme.caml.colors.surfaceLight : theme.caml.colors.heading};
 `;
@@ -156,16 +162,21 @@ export const ChapterTitle = styled.h2<{ $dark?: boolean }>`
 // ---------------------------------------------------------------------------
 
 export const ProseContainer = styled.div<{ $dark?: boolean }>`
-  margin-bottom: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: 1.0625rem;
+  line-height: 1.8;
 
   p {
-    margin-bottom: 1rem;
+    margin-bottom: 1.125rem;
     color: ${({ $dark, theme }) =>
       $dark ? theme.caml.colors.darkProse : theme.caml.colors.proseText};
   }
 
   strong {
     font-weight: 600;
+    color: ${({ $dark, theme }) =>
+      $dark ? theme.caml.colors.surfaceLight : theme.caml.colors.heading};
   }
 
   a {
@@ -184,14 +195,15 @@ export const ProseContainer = styled.div<{ $dark?: boolean }>`
 `;
 
 export const Pullquote = styled.blockquote`
-  border-left: 4px solid ${({ theme }) => theme.caml.colors.accent};
-  padding: 1rem 1.5rem;
+  border-left: 6px solid ${({ theme }) => theme.caml.colors.accent};
+  padding: 1.5rem 2rem;
   margin: 2rem 0;
   font-family: ${({ theme }) => theme.caml.typography.fontFamilySerif};
-  font-size: 1.1875rem;
+  font-size: 1.25rem;
   font-style: italic;
-  color: ${({ theme }) => theme.caml.colors.textPrimary};
-  background: ${({ theme }) => theme.caml.accentAlpha(0.04)};
+  line-height: 1.7;
+  color: ${({ theme }) => theme.caml.colors.heading};
+  background: ${({ theme }) => theme.caml.accentAlpha(0.05)};
   border-radius: 0 8px 8px 0;
 `;
 
@@ -203,7 +215,6 @@ export const CardsGrid = styled.div<{ $columns?: number }>`
   display: grid;
   grid-template-columns: repeat(${({ $columns }) => $columns || 2}, 1fr);
   gap: 1rem;
-  margin: 1.5rem 0;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
@@ -217,10 +228,12 @@ export const CardItem = styled.div<{ $accent?: string }>`
   padding: 1.25rem;
   border-left: 4px solid
     ${({ $accent, theme }) => $accent || theme.caml.colors.border};
-  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s, transform 0.2s;
 
   &:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
   }
 `;
 
@@ -268,19 +281,19 @@ export const PillsRow = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  margin: 1.5rem 0;
 `;
 
 export const PillCard = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: ${({ theme }) => theme.caml.colors.surface};
+  background: ${({ theme }) => theme.caml.colors.surfaceHover};
   border: 1px solid ${({ theme }) => theme.caml.colors.border};
   border-radius: 10px;
   padding: 1rem 1.25rem;
   flex: 1 1 200px;
   min-width: 200px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 `;
 
 export const PillBigText = styled.span`
@@ -337,11 +350,11 @@ export const PillStatus = styled.span<{ $color?: string }>`
 // ---------------------------------------------------------------------------
 
 export const TabsContainer = styled.div`
-  margin: 2rem 0;
   border: 1px solid ${({ theme }) => theme.caml.colors.border};
   border-radius: 12px;
   overflow: hidden;
   background: ${({ theme }) => theme.caml.colors.surface};
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 `;
 
 export const TabBar = styled.div`
@@ -460,7 +473,6 @@ export const TabSourceChip = styled.span`
 // ---------------------------------------------------------------------------
 
 export const TimelineContainer = styled.div`
-  margin: 2rem 0;
   position: relative;
   padding-left: 2rem;
 
@@ -522,17 +534,19 @@ export const TimelineDot = styled.span<{ $color?: string }>`
 `;
 
 export const TimelineDate = styled.span`
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.caml.colors.textMuted};
+  color: inherit;
+  opacity: 0.6;
   text-transform: uppercase;
   letter-spacing: 0.025em;
 `;
 
 export const TimelineLabel = styled.p`
-  font-size: 0.9375rem;
-  color: ${({ theme }) => theme.caml.colors.textPrimary};
-  margin: 0.125rem 0 0;
+  font-size: 1rem;
+  color: inherit;
+  margin: 0.25rem 0 0;
+  line-height: 1.5;
 `;
 
 // ---------------------------------------------------------------------------
@@ -542,21 +556,21 @@ export const TimelineLabel = styled.p`
 export const CtaRow = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   justify-content: center;
-  margin: 2rem 0;
 `;
 
 export const CtaButton = styled.a<{ $primary?: boolean }>`
   display: inline-flex;
   align-items: center;
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 2rem;
   border-radius: 8px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   text-decoration: none;
   transition: all 0.2s;
   cursor: pointer;
+  letter-spacing: 0.01em;
 
   ${({ $primary }) =>
     $primary
@@ -564,13 +578,14 @@ export const CtaButton = styled.a<{ $primary?: boolean }>`
           background: ${({ theme }) => theme.caml.colors.accent};
           color: ${({ theme }) => theme.caml.colors.surface};
           border: 2px solid ${({ theme }) => theme.caml.colors.accent};
+          box-shadow: 0 2px 8px ${({ theme }) => theme.caml.accentAlpha(0.2)};
 
           &:hover {
             background: ${({ theme }) => theme.caml.colors.accentHover};
             border-color: ${({ theme }) => theme.caml.colors.accentHover};
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px
-              ${({ theme }) => theme.caml.accentAlpha(0.3)};
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px
+              ${({ theme }) => theme.caml.accentAlpha(0.35)};
           }
         `
       : css`
@@ -581,6 +596,7 @@ export const CtaButton = styled.a<{ $primary?: boolean }>`
           &:hover {
             background: ${({ theme }) => theme.caml.accentAlpha(0.05)};
             transform: translateY(-1px);
+            box-shadow: 0 2px 8px ${({ theme }) => theme.caml.accentAlpha(0.1)};
           }
         `}
 `;
@@ -592,7 +608,6 @@ export const CtaButton = styled.a<{ $primary?: boolean }>`
 export const SignupBox = styled.div`
   text-align: center;
   padding: 2.5rem 1.5rem;
-  margin: 2rem 0;
   border: 1px solid ${({ theme }) => theme.caml.colors.border};
   border-radius: 12px;
   background: ${({ theme }) => theme.caml.colors.surfaceHover};
@@ -639,11 +654,11 @@ export const SignupButton = styled.button`
 // ---------------------------------------------------------------------------
 
 export const FooterSection = styled.footer`
-  padding: 3rem 1.5rem;
-  border-top: 1px solid ${({ theme }) => theme.caml.colors.border};
+  padding: 3rem 1.5rem 2.5rem;
+  border-top: 2px solid ${({ theme }) => theme.caml.colors.border};
+  background: ${({ theme }) => theme.caml.colors.surfaceHover};
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%;
 `;
 
 export const FooterNav = styled.nav`
@@ -677,7 +692,6 @@ export const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 1rem;
-  margin: 1.5rem 0;
 `;
 
 export const StatCard = styled.div`

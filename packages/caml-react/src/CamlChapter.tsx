@@ -4,7 +4,12 @@ import type { ReactNode } from "react";
 import type { CamlChapter, CamlBlock } from "@os-legal/caml";
 import type { CamlStats } from "./theme";
 import { CamlBlockRenderer } from "./CamlBlocks";
-import { ChapterSection, ChapterKicker, ChapterTitle } from "./styles";
+import {
+  ChapterSection,
+  ChapterHeader,
+  ChapterKicker,
+  ChapterTitle,
+} from "./styles";
 
 export interface CamlChapterRendererProps {
   chapter: CamlChapter;
@@ -28,12 +33,15 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
       $gradient={chapter.gradient}
       $centered={chapter.centered}
     >
-      {chapter.kicker && (
-        <ChapterKicker $dark={isDark}>{chapter.kicker}</ChapterKicker>
-      )}
-
-      {chapter.title && (
-        <ChapterTitle $dark={isDark}>{chapter.title}</ChapterTitle>
+      {(chapter.kicker || chapter.title) && (
+        <ChapterHeader>
+          {chapter.kicker && (
+            <ChapterKicker $dark={isDark}>{chapter.kicker}</ChapterKicker>
+          )}
+          {chapter.title && (
+            <ChapterTitle $dark={isDark}>{chapter.title}</ChapterTitle>
+          )}
+        </ChapterHeader>
       )}
 
       {chapter.blocks.map((block: CamlBlock, index: number) => (
