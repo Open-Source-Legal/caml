@@ -19,7 +19,8 @@
   ],
   "scripts": {
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "test:ct": "playwright test -c playwright-ct.config.ts --reporter=list"
   },
   "dependencies": {
     "@os-legal/caml": "workspace:*"
@@ -44,6 +45,8 @@
     }
   },
   "devDependencies": {
+    "@playwright/experimental-ct-react": "^1.58.2",
+    "@playwright/test": "^1.58.2",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "react": "^18.0.0",
