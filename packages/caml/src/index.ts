@@ -25,4 +25,7 @@ export type {
   CamlCorpusStats,
   CamlCorpusStatItem,
   CamlAnnotationEmbed,
+  CamlMap,
+  CamlMapLegendItem,
+  CamlMapStateItem,
 } from "./types";

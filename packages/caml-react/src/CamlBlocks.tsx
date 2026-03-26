@@ -17,6 +17,7 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlProse,
+  CamlMap,
 } from "@os-legal/caml";
 import { isSafeHref, isExternalHref } from "./safeHref";
 import { CamlMarkdown } from "./CamlMarkdown";
@@ -64,7 +65,20 @@ import {
   StatCard,
   StatValue,
   StatLabel,
+  MapContainer,
+  MapGrid,
+  MapTile,
+  MapTileEmpty,
+  MapLegend,
+  MapLegendItem as MapLegendItemStyled,
+  MapTooltip,
 } from "./styles";
+import {
+  US_STATES_GRID,
+  GRID_COLS,
+  GRID_ROWS,
+  NEUTRAL_STATE_COLOR,
+} from "./usStatesGrid";
 
 interface BlockRendererProps {
   block: CamlBlock;
@@ -108,6 +122,8 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
           <em>Annotation embed (coming soon)</em>
         </ProseContainer>
       );
+    case "map":
+      return <MapBlock block={block} />;
     default:
       return null;
   }
@@ -396,5 +412,79 @@ function CorpusStatsBlock({
         </StatCard>
       ))}
     </StatsGrid>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Map (Tile Grid)
+// ---------------------------------------------------------------------------
+
+function MapBlock({ block }: { block: CamlMap }) {
+  const [hoveredState, setHoveredState] = useState<string | null>(null);
+
+  // Build a map from status label -> color using the legend
+  const colorMap = new Map(
+    block.legend.map((l) => [l.label.toLowerCase(), l.color])
+  );
+
+  // Build a map from state code -> status
+  const stateStatusMap = new Map(
+    block.states.map((s) => [s.code, s.status])
+  );
+
+  // Build the grid: create a 2D lookup from "col,row" -> state entry
+  const gridLookup = new Map(
+    US_STATES_GRID.map((entry) => [`${entry.col},${entry.row}`, entry])
+  );
+
+  const cells: React.ReactNode[] = [];
+  for (let row = 0; row < GRID_ROWS; row++) {
+    for (let col = 0; col < GRID_COLS; col++) {
+      const entry = gridLookup.get(`${col},${row}`);
+      if (entry) {
+        const status = stateStatusMap.get(entry.code);
+        const fillColor = status
+          ? colorMap.get(status.toLowerCase()) || NEUTRAL_STATE_COLOR
+          : NEUTRAL_STATE_COLOR;
+
+        cells.push(
+          <MapTile
+            key={`${col}-${row}`}
+            $color={fillColor}
+            data-testid={`map-tile-${entry.code}`}
+            onMouseEnter={() => setHoveredState(entry.code)}
+            onMouseLeave={() => setHoveredState(null)}
+          >
+            {entry.code}
+            {hoveredState === entry.code && (
+              <MapTooltip>
+                {entry.name}
+                {status ? ` \u2014 ${status}` : ""}
+              </MapTooltip>
+            )}
+          </MapTile>
+        );
+      } else {
+        cells.push(<MapTileEmpty key={`${col}-${row}`} />);
+      }
+    }
+  }
+
+  return (
+    <MapContainer data-testid="map-container">
+      <MapGrid $cols={GRID_COLS} $rows={GRID_ROWS}>
+        {cells}
+      </MapGrid>
+
+      {block.legend.length > 0 && (
+        <MapLegend data-testid="map-legend">
+          {block.legend.map((item, i) => (
+            <MapLegendItemStyled key={i} $color={item.color}>
+              {item.label}
+            </MapLegendItemStyled>
+          ))}
+        </MapLegend>
+      )}
+    </MapContainer>
   );
 }

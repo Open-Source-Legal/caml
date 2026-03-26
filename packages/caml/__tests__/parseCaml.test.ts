@@ -19,6 +19,7 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlProse,
+  CamlMap,
 } from "../src/types";
 
 describe("parseCaml", () => {
@@ -298,6 +299,64 @@ Get the latest analysis delivered to your inbox.
       expect(block.items.length).toBe(3);
       expect(block.items[0].key).toBe("documents");
       expect(block.items[0].label).toBe("Documents");
+    });
+
+    it("should parse map block with legend and state entries", () => {
+      const source = `::: map {type: us}
+
+legend:
+- Active | #0f766e
+- Pending | #f59e0b
+
+- CA | Active
+- NY | Active
+- TX | Pending
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.type).toBe("map");
+      expect(block.mapType).toBe("us");
+      expect(block.legend.length).toBe(2);
+      expect(block.legend[0].label).toBe("Active");
+      expect(block.legend[0].color).toBe("#0f766e");
+      expect(block.legend[1].label).toBe("Pending");
+      expect(block.legend[1].color).toBe("#f59e0b");
+      expect(block.states.length).toBe(3);
+      expect(block.states[0].code).toBe("CA");
+      expect(block.states[0].status).toBe("Active");
+      expect(block.states[1].code).toBe("NY");
+      expect(block.states[1].status).toBe("Active");
+      expect(block.states[2].code).toBe("TX");
+      expect(block.states[2].status).toBe("Pending");
+    });
+
+    it("should parse map block with no legend", () => {
+      const source = `::: map {type: us}
+
+- CA | Active
+- FL | Inactive
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.type).toBe("map");
+      expect(block.legend.length).toBe(0);
+      expect(block.states.length).toBe(2);
+    });
+
+    it("should default map type to 'us' when not specified", () => {
+      const source = `::: map
+
+- CA | Active
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlMap;
+      expect(block.mapType).toBe("us");
     });
 
     it("should parse prose with pullquotes", () => {

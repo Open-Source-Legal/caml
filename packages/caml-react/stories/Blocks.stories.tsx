@@ -197,3 +197,41 @@ export const CorpusStats: StoryObj = {
     <CamlShowcase source={corpusStatsSource} stats={sampleStats} />
   ),
 };
+
+// ---------------------------------------------------------------------------
+// US Map
+// ---------------------------------------------------------------------------
+
+const usMapSource = `::: map {type: us}
+legend:
+- Compliant | #0f766e
+- Pending Review | #f59e0b
+- Non-compliant | #dc2626
+
+- CA | Compliant
+- NY | Compliant
+- TX | Pending Review
+- FL | Non-compliant
+- IL | Compliant
+- WA | Pending Review
+- PA | Compliant
+- OH | Compliant
+- GA | Non-compliant
+- NC | Pending Review
+- MI | Compliant
+- NJ | Compliant
+- VA | Compliant
+- MA | Compliant
+- AZ | Pending Review
+- CO | Compliant
+- TN | Non-compliant
+- MN | Compliant
+- MD | Compliant
+- OR | Pending Review
+- CT | Compliant
+- DE | Compliant
+:::`;
+
+export const USMap: StoryObj = {
+  render: () => <CamlShowcase source={usMapSource} />,
+};

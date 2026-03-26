@@ -148,6 +148,23 @@ export interface CamlAnnotationEmbed {
   ref: string;
 }
 
+export interface CamlMapLegendItem {
+  label: string;
+  color: string;
+}
+
+export interface CamlMapStateItem {
+  code: string; // 2-letter state code (CA, NY, TX, etc.)
+  status: string; // Must match a legend label
+}
+
+export interface CamlMap {
+  type: "map";
+  mapType: string; // "us" for now, extensible later
+  legend: CamlMapLegendItem[];
+  states: CamlMapStateItem[];
+}
+
 export type CamlBlock =
   | CamlProse
   | CamlCards
@@ -157,7 +174,8 @@ export type CamlBlock =
   | CamlCta
   | CamlSignup
   | CamlCorpusStats
-  | CamlAnnotationEmbed;
+  | CamlAnnotationEmbed
+  | CamlMap;
 
 // ---------------------------------------------------------------------------
 // Chapters

@@ -22,6 +22,9 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlAnnotationEmbed,
+  CamlMap,
+  CamlMapLegendItem,
+  CamlMapStateItem,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -371,6 +374,60 @@ function parseAnnotationEmbed(
 }
 
 // ---------------------------------------------------------------------------
+// Map
+// ---------------------------------------------------------------------------
+
+function parseMap(attrs: Record<string, string>, body: string): CamlMap {
+  const mapType = attrs.type || "us";
+  const legend: CamlMapLegendItem[] = [];
+  const states: CamlMapStateItem[] = [];
+  let inLegend = false;
+
+  for (const line of body.split("\n")) {
+    const trimmed = line.trim();
+
+    if (trimmed === "legend:") {
+      inLegend = true;
+      continue;
+    }
+
+    if (inLegend) {
+      if (trimmed.startsWith("- ")) {
+        const legendMatch = trimmed
+          .slice(2)
+          .match(/^(.+?)\s*\|\s*(#[0-9a-fA-F]{6})\s*$/);
+        if (legendMatch) {
+          legend.push({
+            label: legendMatch[1].trim(),
+            color: legendMatch[2],
+          });
+        } else {
+          inLegend = false;
+        }
+      } else if (trimmed === "") {
+        inLegend = false;
+      } else {
+        continue;
+      }
+    }
+
+    if (!inLegend && trimmed.startsWith("- ")) {
+      const stateMatch = trimmed
+        .slice(2)
+        .match(/^([A-Z]{2})\s*\|\s*(.+)$/);
+      if (stateMatch) {
+        states.push({
+          code: stateMatch[1],
+          status: stateMatch[2].trim(),
+        });
+      }
+    }
+  }
+
+  return { type: "map", mapType, legend, states };
+}
+
+// ---------------------------------------------------------------------------
 // Dispatcher
 // ---------------------------------------------------------------------------
 
@@ -399,6 +456,8 @@ export function parseBlock(
       return parseCorpusStats(attrs, body);
     case "annotation-embed":
       return parseAnnotationEmbed(attrs, body);
+    case "map":
+      return parseMap(attrs, body);
     default:
       // Unknown block type — treat as prose
       return { type: "prose", content: body };

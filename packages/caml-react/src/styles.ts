@@ -717,3 +717,106 @@ export const StatLabel = styled.div`
   letter-spacing: 0.05em;
   margin-top: 0.25rem;
 `;
+
+// ---------------------------------------------------------------------------
+// Map (Tile Grid)
+// ---------------------------------------------------------------------------
+
+export const MapContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border: 1px solid ${({ theme }) => theme.caml.colors.border};
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: ${({ theme }) => theme.caml.colors.surface};
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+`;
+
+export const MapGrid = styled.div<{ $cols: number; $rows: number }>`
+  display: grid;
+  grid-template-columns: repeat(${({ $cols }) => $cols}, 1fr);
+  grid-template-rows: repeat(${({ $rows }) => $rows}, 1fr);
+  gap: 2px;
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+`;
+
+export const MapTile = styled.div<{ $color?: string }>`
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: ${({ $color }) => $color || "transparent"};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: white;
+  cursor: default;
+  position: relative;
+  transition: transform 0.15s, box-shadow 0.15s;
+  user-select: none;
+
+  &:hover {
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+  }
+`;
+
+export const MapTileEmpty = styled.div`
+  aspect-ratio: 1;
+`;
+
+export const MapLegend = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+`;
+
+export const MapLegendItem = styled.span<{ $color: string }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: ${({ theme }) => theme.caml.colors.textSecondary};
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background: ${({ $color }) => $color};
+  }
+`;
+
+export const MapTooltip = styled.div`
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: ${({ theme }) => theme.caml.colors.heading};
+  color: ${({ theme }) => theme.caml.colors.surface};
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: ${({ theme }) => theme.caml.colors.heading};
+  }
+`;
