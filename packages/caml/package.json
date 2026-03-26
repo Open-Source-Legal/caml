@@ -4,6 +4,9 @@
   "type": "module",
   "description": "CAML (Corpus Article Markup Language) parser — zero-dependency markdown superset for legal articles",
   "license": "MIT",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
