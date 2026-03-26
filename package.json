@@ -12,8 +12,11 @@
     "lint": "tsc --noEmit",
     "clean": "rm -rf packages/*/dist"
   },
+  "resolutions": {
+    "typescript": "~5.8.0"
+  },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "typescript": "~5.8.0",
     "vitest": "^3.0.0"
   }
 }
