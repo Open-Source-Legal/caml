@@ -8,3 +8,7 @@ dist/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Playwright
+playwright/.cache/
+test-results/
