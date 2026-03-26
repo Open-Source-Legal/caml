@@ -13,3 +13,6 @@ dist/
 playwright/.cache/
 test-results/
 packages/caml-react/playwright/.cache/
+
+# Storybook
+storybook-static/
