@@ -1,87 +1,90 @@
-*@os-legal/caml*
+<div align="center">
 
-# Corpus Article Markup Language
+# CAML
+
+**Corpus Article Markup Language**
 
 A human-readable markdown superset for authoring beautiful, interactive legal articles and knowledge bases.
 
-`Zero dependencies (parser)` · `React renderer` · `GFM compiler`
+[![Storybook](https://img.shields.io/badge/Storybook-Live_Demo-ff4785?logo=storybook&logoColor=white)](https://open-source-legal.github.io/os-legal-caml/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/Open-Source-Legal/os-legal-caml/actions/workflows/ci.yml/badge.svg)](https://github.com/Open-Source-Legal/os-legal-caml/actions/workflows/ci.yml)
+
+</div>
 
 ---
 
-*Overview*
+<!-- Hero screenshot of the rendered full article -->
+<p align="center">
+  <img src="docs/assets/hero-preview.png" alt="CAML rendered article preview" width="800" />
+</p>
 
-## What is CAML?
+<p align="center">
+  <em>Write like markdown. Render like a publication.</em> ·
+  <a href="https://open-source-legal.github.io/os-legal-caml/"><strong>View Interactive Demo →</strong></a>
+</p>
 
-CAML (Corpus Article Markup Language) is a markdown superset designed for legal document analytics. Write human-readable source files that render as beautiful, interactive articles with cards, pills, tabs, timelines, maps, and court case trackers.
+---
 
-> *Write like markdown. Render like a publication.*
+## Packages
 
-
-*Packages*
-
-## Two Packages
-
-| Item | Details | Description |
-|------|---------|-------------|
-| **@os-legal/caml** | Parser | Zero-dependency parser and GFM compiler. Works in Node, browsers, and CLI. Parses .caml source into a JSON IR, or compiles to GitHub-Flavored Markdown. *npm install @os-legal/caml* |
-| **@os-legal/caml-react** | React Renderer | Themed React components that render CAML articles with interactive blocks, dark/gradient sections, and customizable design tokens. *npm install @os-legal/caml-react* |
-
-
-*Blocks*
-
-## Supported Block Types
-
-| Item | Details | Description |
-|------|---------|-------------|
-| **Prose** | Markdown | Standard markdown with pullquote support via >>> syntax. |
-| **Cards** | Grid Layout | Multi-column card grids with accent colors, metadata, and footers. |
-| **Pills** | Metrics | Big-number metric displays with status badges. |
-| **Tabs** | Tabbed Content | Interactive tabbed panels with section headings and source chips. |
-| **Timeline** | Events | Chronological event display with color-coded legend categories. |
-| **CTA** | Buttons | Call-to-action button rows with primary/secondary styling. |
-| **Map** | US Tile Grid | State-level data visualization with categorical, heatmap, and count modes. |
-| **Case History** | Court Tracker | Visual court progression from trial through appellate to supreme court. |
-| **Corpus Stats** | Live Data | Dynamic stat displays bound to corpus metrics. |
-
-
-*Getting Started*
+| Package | Description | |
+|---------|-------------|-|
+| [`@os-legal/caml`](packages/caml) | Zero-dependency parser. Parses `.caml` source into a typed JSON IR. | `npm i @os-legal/caml` |
+| [`@os-legal/caml-react`](packages/caml-react) | React renderer with themed components, interactive blocks, and customizable design tokens. | `npm i @os-legal/caml-react` |
 
 ## Quick Start
 
-Parse CAML source:
-
 ```typescript
 import { parseCaml } from "@os-legal/caml";
+import { CamlArticle, CamlThemeProvider } from "@os-legal/caml-react";
 
 const doc = parseCaml(camlSource);
-// doc.frontmatter, doc.chapters, doc.chapters[0].blocks...
+
+<CamlThemeProvider>
+  <CamlArticle document={doc} />
+</CamlThemeProvider>
 ```
 
-Render with React:
+## Block Types
 
-```tsx
-import { CamlArticle, CamlThemeProvider } from "@os-legal/caml-react";
-import { parseCaml } from "@os-legal/caml";
+CAML supports **10 block types** for rich legal articles:
 
-function Article({ source }) {
-  const doc = parseCaml(source);
-  return (
-    <CamlThemeProvider>
-      <CamlArticle document={doc} />
-    </CamlThemeProvider>
-  );
-}
+**Content** · Prose · Cards · Pills · Tabs
+**Data** · Timeline · Map (US) · Case History · Corpus Stats
+**Actions** · CTA · Signup
+
+[See all blocks in the interactive Storybook →](https://open-source-legal.github.io/os-legal-caml/)
+
+## CAML Syntax
+
 ```
-
-Compile to GitHub Markdown:
-
-```bash
-npx @os-legal/caml caml-to-md README.caml > README.md
-```
-
-
+---
+hero:
+  title:
+    - "Contract Analysis"
+    - "{2024 Review}"
+  subtitle: A comprehensive regulatory compliance review.
 ---
 
-[npm: @os-legal/caml](https://www.npmjs.com/package/@os-legal/caml) | [npm: @os-legal/caml-react](https://www.npmjs.com/package/@os-legal/caml-react) | [Storybook](https://open-source-legal.github.io/os-legal-caml/)
+::: chapter {#findings, theme: dark}
+## Key Findings
 
-*MIT License. Built for the legal industry by Open Source Legal.*
+Analysis of **1,247 contracts** reveals significant trends.
+
+:::: cards {columns: 2}
+- **Force Majeure** | 89% of contracts | #0f766e
+  Updated language addressing pandemic and cyber events.
+
+- **Data Protection** | 94% of contracts | #2563eb
+  GDPR and CCPA compliance provisions.
+::::
+
+:::
+```
+
+Chapters use `:::`, blocks inside chapters use `::::`, tab sub-fences use `:::::`.
+
+## License
+
+MIT

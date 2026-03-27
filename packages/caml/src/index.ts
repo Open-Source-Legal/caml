@@ -1,5 +1,4 @@
 export { parseCaml } from "./tokenizer";
-export { camlToMarkdown } from "./toMarkdown";
 export type {
   CamlDocument,
   CamlFrontmatter,
