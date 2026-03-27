@@ -78,8 +78,9 @@ function parseYamlFrontmatter(yaml: string): CamlFrontmatter {
           const nextTrimmed = nextLine.trim();
 
           if (nextIndent > indent && nextTrimmed.startsWith("- ")) {
-            // List
+            // List — items may be scalars or objects
             const items: unknown[] = [];
+            const listBaseIndent = nextIndent;
             i++;
             while (i < lines.length) {
               const listLine = lines[i];
@@ -87,7 +88,47 @@ function parseYamlFrontmatter(yaml: string): CamlFrontmatter {
               const listTrimmed = listLine.trim();
               if (listTrimmed === "" || listIndent <= indent) break;
               if (listTrimmed.startsWith("- ")) {
-                items.push(parseYamlValue(listTrimmed.slice(2).trim()));
+                const itemContent = listTrimmed.slice(2).trim();
+                // Check if the next line is a continuation at deeper indent
+                // (indicates an object list item, e.g. "- label: X\n  href: Y")
+                const itemKvMatch = itemContent.match(
+                  /^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)/
+                );
+                if (
+                  itemKvMatch &&
+                  i + 1 < lines.length &&
+                  lines[i + 1].search(/\S/) > listBaseIndent &&
+                  !lines[i + 1].trim().startsWith("- ")
+                ) {
+                  // Object list item — collect key-value pairs
+                  const obj: Record<string, unknown> = {};
+                  obj[itemKvMatch[1]] = parseYamlValue(
+                    itemKvMatch[2].trim()
+                  );
+                  i++;
+                  while (i < lines.length) {
+                    const contLine = lines[i];
+                    const contIndent = contLine.search(/\S/);
+                    const contTrimmed = contLine.trim();
+                    if (
+                      contTrimmed === "" ||
+                      contIndent <= listBaseIndent ||
+                      contTrimmed.startsWith("- ")
+                    )
+                      break;
+                    const contKv = contTrimmed.match(
+                      /^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)/
+                    );
+                    if (contKv) {
+                      obj[contKv[1]] = parseYamlValue(contKv[2].trim());
+                    }
+                    i++;
+                  }
+                  items.push(obj);
+                  continue;
+                } else {
+                  items.push(parseYamlValue(itemContent));
+                }
               }
               i++;
             }

@@ -7,6 +7,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "caml-to-md": "./dist/cli.mjs"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -22,6 +25,7 @@
     "dev": "tsup --watch"
   },
   "devDependencies": {
+    "@types/node": "^25.5.0",
     "tsup": "^8.0.0"
   }
 }
