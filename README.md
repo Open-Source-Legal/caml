@@ -85,6 +85,8 @@ Analysis of **1,247 contracts** reveals significant trends.
 
 Chapters use `:::`, blocks inside chapters use `::::`, tab sub-fences use `:::::`.
 
+[Read the full CAML Syntax Guide →](docs/syntax/README.md)
+
 ## License
 
 MIT
