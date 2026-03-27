@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
-    "clean": "rm -rf packages/*/dist"
+    "clean": "rm -rf packages/*/dist",
+    "generate-readme": "node scripts/generate-readme-assets.js"
   },
   "resolutions": {
     "typescript": "~5.8.0"
