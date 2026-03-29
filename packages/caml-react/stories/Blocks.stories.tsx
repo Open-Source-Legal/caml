@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { CamlShowcase } from "./CamlShowcase";
+import { parseCaml } from "@os-legal/caml";
+import type { CamlUnknownBlock } from "@os-legal/caml";
+import { CamlArticle } from "../src/CamlArticle";
+import { CamlThemeProvider } from "../src/CamlThemeProvider";
 
 const meta: Meta = {
   title: "CAML/Blocks",
@@ -305,4 +309,173 @@ status: Affirmed
 
 export const CaseHistory: StoryObj = {
   render: () => <CamlShowcase source={caseHistorySource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Extract Embed
+// ---------------------------------------------------------------------------
+
+const extractEmbedSource = `::: extract-embed {ref: @extract:e1f3, columns: Clause|Type|Risk Level}
+:::`;
+
+export const ExtractEmbed: StoryObj = {
+  render: () => <CamlShowcase source={extractEmbedSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Custom Blocks (via customBlocks prop)
+// ---------------------------------------------------------------------------
+
+const customBlocksSource = `::: chapter {#custom-demo}
+## Custom Block Types
+
+This chapter demonstrates the customBlocks render prop.
+
+:::: citation-chip {query: "force majeure pandemic", style: inline}
+::::
+
+:::: live-indicator {status: active, service: contract-analysis}
+::::
+
+:::: data-grid {ref: grid-001, columns: Name|Date|Status|Action}
+Row data would go here, parsed by the host app.
+::::
+
+:::`;
+
+function CustomBlocksDemo() {
+  const parsed = useMemo(() => parseCaml(customBlocksSource), []);
+
+  return (
+    <CamlThemeProvider>
+      <CamlArticle
+        document={parsed}
+        customBlocks={{
+          "citation-chip": (block) => {
+            const b = block as CamlUnknownBlock;
+            return (
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.5rem 1rem",
+                  background: "#f0fdf4",
+                  border: "1px solid #86efac",
+                  borderRadius: "999px",
+                  fontSize: "0.875rem",
+                  color: "#166534",
+                  margin: "1rem 0",
+                }}
+              >
+                <span style={{ fontSize: "1rem" }}>&#128269;</span>
+                <span>AI Citation: &ldquo;{b.attrs.query}&rdquo;</span>
+                <span
+                  style={{
+                    background: "#16a34a",
+                    color: "white",
+                    padding: "0.125rem 0.5rem",
+                    borderRadius: "999px",
+                    fontSize: "0.75rem",
+                  }}
+                >
+                  {b.attrs.style}
+                </span>
+              </div>
+            );
+          },
+          "live-indicator": (block) => {
+            const b = block as CamlUnknownBlock;
+            return (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.75rem 1.25rem",
+                  background: "#fefce8",
+                  border: "1px solid #fde68a",
+                  borderRadius: "0.5rem",
+                  margin: "1rem 0",
+                }}
+              >
+                <span
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: "50%",
+                    background: b.attrs.status === "active" ? "#22c55e" : "#94a3b8",
+                    boxShadow:
+                      b.attrs.status === "active"
+                        ? "0 0 6px #22c55e"
+                        : "none",
+                  }}
+                />
+                <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>
+                  {b.attrs.service}
+                </span>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    color: "#64748b",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {b.attrs.status}
+                </span>
+              </div>
+            );
+          },
+          "data-grid": (block) => {
+            const b = block as CamlUnknownBlock;
+            const columns = b.attrs.columns?.split("|") ?? [];
+            return (
+              <div
+                style={{
+                  margin: "1rem 0",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "0.5rem",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    padding: "0.5rem 1rem",
+                    background: "#f1f5f9",
+                    borderBottom: "1px solid #e2e8f0",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    color: "#475569",
+                    textTransform: "uppercase",
+                    gap: "1rem",
+                  }}
+                >
+                  {columns.map((col, i) => (
+                    <span key={i} style={{ flex: 1 }}>
+                      {col}
+                    </span>
+                  ))}
+                </div>
+                <div
+                  style={{
+                    padding: "1rem",
+                    fontSize: "0.8125rem",
+                    color: "#64748b",
+                    fontStyle: "italic",
+                  }}
+                >
+                  Data grid ref: {b.attrs.ref} &mdash; {b.body.trim() || "No rows"}
+                </div>
+              </div>
+            );
+          },
+        }}
+      />
+    </CamlThemeProvider>
+  );
+}
+
+export const CustomBlocks: StoryObj = {
+  render: () => <CustomBlocksDemo />,
 };

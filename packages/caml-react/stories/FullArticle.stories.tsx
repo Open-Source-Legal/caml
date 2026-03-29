@@ -1,6 +1,10 @@
-import React from "react";
+import React, { useMemo } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { CamlShowcase } from "./CamlShowcase";
+import { parseCaml } from "@os-legal/caml";
+import type { CamlUnknownBlock } from "@os-legal/caml";
+import { CamlArticle } from "../src/CamlArticle";
+import { CamlThemeProvider } from "../src/CamlThemeProvider";
 
 const fullArticleSource = `---
 version: "1"
@@ -165,6 +169,9 @@ legend:
 - threads | Discussion Threads
 ::::
 
+:::: extract-embed {ref: @extract:compliance-summary, columns: Clause|Count|Rate}
+::::
+
 :::: signup
 title: Stay Informed
 button: Subscribe to Updates
@@ -205,4 +212,176 @@ export default meta;
 
 export const Default: StoryObj = {
   render: () => <CamlShowcase source={fullArticleSource} stats={sampleStats} />,
+};
+
+// ---------------------------------------------------------------------------
+// Full Article with customBlocks
+// ---------------------------------------------------------------------------
+
+const fullArticleWithCustomBlocksSource = `---
+version: "1"
+site: OpenContracts
+hero:
+  kicker: "Custom Blocks Demo"
+  title:
+    - "Full Article with"
+    - "{Custom Block Types}"
+  subtitle: >
+    Demonstrates how host applications can register renderers for
+    arbitrary block types using the customBlocks prop.
+---
+
+::: chapter {#overview}
+>! Section 01
+## Overview
+
+This article uses both built-in and custom block types.
+
+:::: pills
+- 3 | **Custom Block Types** | Registered via customBlocks
+  status: Active | #16a34a
+- 100% | **Backward Compat** | renderAnnotationEmbed still works
+  status: Verified | #0f766e
+::::
+
+:::
+
+::: chapter {#custom}
+>! Section 02
+## Custom Blocks in Action
+
+:::: citation-chip {query: "force majeure pandemic", confidence: 0.94}
+::::
+
+:::: extract-embed {ref: @extract:demo-grid}
+::::
+
+:::: live-dashboard {service: contract-analysis, region: us-east}
+Active workers: 12
+Queue depth: 347
+::::
+
+:::
+
+::: chapter {#cta, gradient: true, centered: true}
+## Try Custom Blocks
+
+Build your own block types without modifying the CAML parser.
+
+:::: cta
+- [View Documentation](#docs) {primary}
+- [View Source](#source)
+::::
+
+:::`;
+
+function FullArticleWithCustomBlocks() {
+  const parsed = useMemo(
+    () => parseCaml(fullArticleWithCustomBlocksSource),
+    []
+  );
+
+  return (
+    <CamlThemeProvider>
+      <CamlArticle
+        document={parsed}
+        stats={sampleStats}
+        customBlocks={{
+          "citation-chip": (block) => {
+            const b = block as CamlUnknownBlock;
+            return (
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.5rem 1rem",
+                  background: "#f0fdf4",
+                  border: "1px solid #86efac",
+                  borderRadius: "999px",
+                  fontSize: "0.875rem",
+                  color: "#166534",
+                  margin: "1rem 0",
+                }}
+              >
+                AI Citation: &ldquo;{b.attrs.query}&rdquo; (confidence:{" "}
+                {b.attrs.confidence})
+              </div>
+            );
+          },
+          "extract-embed": (block) => {
+            const b = block as { ref: string; columns?: string[] };
+            return (
+              <div
+                style={{
+                  margin: "1rem 0",
+                  padding: "1rem",
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "0.5rem",
+                  fontSize: "0.875rem",
+                  color: "#475569",
+                }}
+              >
+                Extract Embed: <strong>{b.ref}</strong>
+                {" — "}
+                <em>Data grid would be rendered by the host application</em>
+              </div>
+            );
+          },
+          "live-dashboard": (block) => {
+            const b = block as CamlUnknownBlock;
+            return (
+              <div
+                style={{
+                  margin: "1rem 0",
+                  padding: "1rem 1.25rem",
+                  background: "#0f172a",
+                  borderRadius: "0.5rem",
+                  color: "#e2e8f0",
+                  fontSize: "0.875rem",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    marginBottom: "0.75rem",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: "#22c55e",
+                      boxShadow: "0 0 6px #22c55e",
+                    }}
+                  />
+                  <strong>{b.attrs.service}</strong>
+                  <span style={{ color: "#64748b", fontSize: "0.75rem" }}>
+                    {b.attrs.region}
+                  </span>
+                </div>
+                <pre
+                  style={{
+                    margin: 0,
+                    fontSize: "0.8125rem",
+                    color: "#94a3b8",
+                  }}
+                >
+                  {b.body.trim()}
+                </pre>
+              </div>
+            );
+          },
+        }}
+      />
+    </CamlThemeProvider>
+  );
+}
+
+export const WithCustomBlocks: StoryObj = {
+  render: () => <FullArticleWithCustomBlocks />,
 };

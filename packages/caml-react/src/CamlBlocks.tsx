@@ -23,6 +23,7 @@ import type {
 import { isSafeHref, isExternalHref } from "./safeHref";
 import { CamlMarkdown } from "./CamlMarkdown";
 import type { CamlStats } from "./theme";
+import type { CustomBlockRenderer } from "./CamlArticle";
 import {
   ProseContainer,
   Pullquote,
@@ -108,6 +109,7 @@ interface BlockRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  customBlocks?: Record<string, CustomBlockRenderer>;
 }
 
 export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
@@ -116,6 +118,7 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  customBlocks,
 }) => {
   switch (block.type) {
     case "prose":
@@ -137,6 +140,9 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
     case "corpus-stats":
       return <CorpusStatsBlock block={block} stats={stats} />;
     case "annotation-embed":
+      if (customBlocks?.["annotation-embed"]) {
+        return <>{customBlocks["annotation-embed"](block)}</>;
+      }
       return renderAnnotationEmbed ? (
         renderAnnotationEmbed(block.ref)
       ) : (
@@ -148,8 +154,13 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
       return <MapBlock block={block} />;
     case "case-history":
       return <CaseHistoryBlock block={block} />;
-    default:
+    default: {
+      const unknownBlock = block as CamlBlock;
+      if (customBlocks?.[unknownBlock.type]) {
+        return <>{customBlocks[unknownBlock.type](unknownBlock)}</>;
+      }
       return null;
+    }
   }
 };
 

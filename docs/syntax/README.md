@@ -101,7 +101,15 @@ If a fence is never closed, its body is recovered as prose to prevent silent dat
 
 ### Unknown Block Types
 
-Any fenced block with an unrecognized type name is treated as a prose block containing the raw body text.
+Any fenced block with an unrecognized type name is passed through as a `CamlUnknownBlock` containing the original type string, parsed attributes, and raw body text. This allows host applications to handle custom block types via the `customBlocks` render prop without requiring parser changes.
+
+```typescript
+interface CamlUnknownBlock {
+  type: string;          // the original type string
+  attrs: Record<string, string>;
+  body: string;
+}
+```
 
 ## Chapters
 
@@ -419,6 +427,52 @@ Embeds a referenced annotation (placeholder in v1).
 
 The `ref` attribute value has the `@annotation:` prefix stripped, leaving just the ID.
 
+### Extract Embed
+
+Embeds a referenced extract's data grid.
+
+```
+::: extract-embed {ref: @extract:e1f3, columns: Name|Date|Status}
+:::
+```
+
+| Attribute | Required | Description |
+|-----------|----------|-------------|
+| `ref` | Yes | Extract reference. The `@extract:` prefix is stripped, leaving just the ID. |
+| `columns` | No | Pipe-separated list of column names to display. |
+
+Like annotation embeds, extract embeds are rendered by the host application via the `customBlocks` prop.
+
+### Custom Blocks
+
+Any block type not built into the parser is passed through as a `CamlUnknownBlock`. Host applications can render these using the `customBlocks` prop on `CamlArticle`:
+
+```tsx
+<CamlArticle
+  document={doc}
+  customBlocks={{
+    "corpus-live-stats": (block) => <LiveStats attrs={block.attrs} />,
+    "cite-me": (block) => <CitationChip query={block.attrs.query} />,
+  }}
+/>
+```
+
+Example custom block in CAML source:
+
+```
+::: corpus-live-stats {mode: realtime, refresh: 30}
+- documents | Documents
+- annotations | Annotations
+:::
+```
+
+The parser preserves:
+- **`type`** — the original block type string (e.g., `"corpus-live-stats"`)
+- **`attrs`** — parsed attributes from the `{...}` header
+- **`body`** — raw body text between the fences
+
+This pattern allows new block types to work without parser releases.
+
 ### Map
 
 US state tile grid with categorical or heatmap coloring.
@@ -653,5 +707,5 @@ Join leading legal teams using document analytics.
 4. Inside each chapter, the body is re-tokenized at depth 4 — `::::` fences become blocks.
 5. Inside a `:::: tabs` block, the body is scanned for `::::: tab` sub-fences at depth 5.
 6. Unclosed fences are recovered as prose.
-7. Unknown block types are treated as prose containing the raw body text.
+7. Unknown block types are passed through as `CamlUnknownBlock` with original type, attributes, and body.
 8. Chapter metadata (`>!` kicker and `## title`) is extracted from prose and removed from rendered content.

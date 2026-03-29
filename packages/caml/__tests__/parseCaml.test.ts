@@ -21,6 +21,8 @@ import type {
   CamlProse,
   CamlMap,
   CamlCaseHistory,
+  CamlExtractEmbed,
+  CamlUnknownBlock,
 } from "../src/types";
 
 describe("parseCaml", () => {
@@ -576,7 +578,7 @@ Content C
       expect(doc.chapters[2].id).toBe("c");
     });
 
-    it("should handle unknown block types as prose", () => {
+    it("should pass through unknown block types as CamlUnknownBlock", () => {
       const source = `::: unknown-block-type
 
 This is unknown content.
@@ -584,11 +586,11 @@ This is unknown content.
 :::`;
 
       const doc = parseCaml(source);
-      // Unknown block types wrapped in implicit chapter
       expect(doc.chapters.length).toBe(1);
-      const blocks = doc.chapters[0].blocks;
-      const proseBlocks = blocks.filter((b) => b.type === "prose");
-      expect(proseBlocks.length).toBeGreaterThan(0);
+      const block = doc.chapters[0].blocks[0] as CamlUnknownBlock;
+      expect(block.type).toBe("unknown-block-type");
+      expect(block.attrs).toEqual({});
+      expect(block.body).toContain("This is unknown content.");
     });
 
     it("should handle whitespace-only body", () => {
@@ -656,6 +658,176 @@ legend:
       expect(doc.chapters.length).toBe(2);
       expect(doc.chapters[0].blocks[0].type).toBe("cards");
       expect(doc.chapters[1].blocks[0].type).toBe("cta");
+    });
+  });
+
+  describe("extract-embed", () => {
+    it("should parse extract-embed block with ref", () => {
+      const source = `::: extract-embed {ref: @extract:e1f3}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlExtractEmbed;
+      expect(block.type).toBe("extract-embed");
+      expect(block.ref).toBe("e1f3");
+    });
+
+    it("should parse extract-embed with columns", () => {
+      const source = `::: extract-embed {ref: @extract:abc123, columns: Name|Date|Status}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlExtractEmbed;
+      expect(block.type).toBe("extract-embed");
+      expect(block.ref).toBe("abc123");
+      expect(block.columns).toEqual(["Name", "Date", "Status"]);
+    });
+
+    it("should parse extract-embed without columns", () => {
+      const source = `::: extract-embed {ref: myExtract}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlExtractEmbed;
+      expect(block.type).toBe("extract-embed");
+      expect(block.ref).toBe("myExtract");
+      expect(block.columns).toBeUndefined();
+    });
+
+    it("should parse extract-embed nested inside a chapter", () => {
+      const source = `::: chapter {#data}
+## Extract Data
+
+:::: extract-embed {ref: @extract:nested1}
+::::
+
+:::`;
+
+      const doc = parseCaml(source);
+      expect(doc.chapters[0].id).toBe("data");
+      const block = doc.chapters[0].blocks[0] as CamlExtractEmbed;
+      expect(block.type).toBe("extract-embed");
+      expect(block.ref).toBe("nested1");
+    });
+  });
+
+  describe("unknown block passthrough", () => {
+    it("should pass through unknown types with attributes", () => {
+      const source = `::: corpus-live-stats {mode: realtime, refresh: 30}
+
+- documents | Documents
+- annotations | Annotations
+
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlUnknownBlock;
+      expect(block.type).toBe("corpus-live-stats");
+      expect(block.attrs).toEqual({ mode: "realtime", refresh: "30" });
+      expect(block.body).toContain("- documents | Documents");
+      expect(block.body).toContain("- annotations | Annotations");
+    });
+
+    it("should pass through cite-me block type", () => {
+      const source = `::: cite-me {query: "force majeure pandemic"}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlUnknownBlock;
+      expect(block.type).toBe("cite-me");
+      expect(block.attrs).toEqual({ query: '"force majeure pandemic"' });
+    });
+
+    it("should preserve body content for unknown blocks", () => {
+      const source = `::: custom-widget {#widget-1, variant: compact}
+line 1
+line 2
+line 3
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlUnknownBlock;
+      expect(block.type).toBe("custom-widget");
+      expect(block.attrs.id).toBe("widget-1");
+      expect(block.attrs.variant).toBe("compact");
+      expect(block.body).toContain("line 1");
+      expect(block.body).toContain("line 2");
+      expect(block.body).toContain("line 3");
+    });
+
+    it("should handle unknown blocks nested inside chapters", () => {
+      const source = `::: chapter {#demo}
+## Demo
+
+:::: my-custom-block {color: #0f766e}
+Custom content here.
+::::
+
+:::`;
+
+      const doc = parseCaml(source);
+      expect(doc.chapters.length).toBe(1);
+      const block = doc.chapters[0].blocks[0] as CamlUnknownBlock;
+      expect(block.type).toBe("my-custom-block");
+      expect(block.attrs.color).toBe("#0f766e");
+      expect(block.body).toContain("Custom content here.");
+    });
+
+    it("should handle multiple unknown block types in one document", () => {
+      const source = `::: chapter {#mixed}
+## Mixed Content
+
+:::: extract-grid {ref: e1}
+::::
+
+:::: cite-all {scope: document}
+::::
+
+:::`;
+
+      const doc = parseCaml(source);
+      const blocks = doc.chapters[0].blocks;
+      // extract-grid is unknown, cite-all is unknown
+      const extractGrid = blocks[0] as CamlUnknownBlock;
+      expect(extractGrid.type).toBe("extract-grid");
+      expect(extractGrid.attrs.ref).toBe("e1");
+
+      const citeAll = blocks[1] as CamlUnknownBlock;
+      expect(citeAll.type).toBe("cite-all");
+      expect(citeAll.attrs.scope).toBe("document");
+    });
+
+    it("should pass through unknown blocks with empty body", () => {
+      const source = `::: live-indicator {status: active}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlUnknownBlock;
+      expect(block.type).toBe("live-indicator");
+      expect(block.attrs.status).toBe("active");
+      expect(block.body.trim()).toBe("");
+    });
+
+    it("should not break existing known block types", () => {
+      const source = `::: cards {columns: 2}
+- **Card A**
+  Body A
+:::
+
+::: some-future-block {key: val}
+future content
+:::`;
+
+      const doc = parseCaml(source);
+      expect(doc.chapters.length).toBe(2);
+      const cards = doc.chapters[0].blocks[0] as CamlCards;
+      expect(cards.type).toBe("cards");
+      expect(cards.items[0].label).toBe("Card A");
+
+      const unknown = doc.chapters[1].blocks[0] as CamlUnknownBlock;
+      expect(unknown.type).toBe("some-future-block");
+      expect(unknown.attrs.key).toBe("val");
+      expect(unknown.body).toContain("future content");
     });
   });
 });

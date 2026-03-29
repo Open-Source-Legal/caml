@@ -22,11 +22,13 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlAnnotationEmbed,
+  CamlExtractEmbed,
   CamlMap,
   CamlMapLegendItem,
   CamlMapStateItem,
   CamlCaseHistory,
   CamlCaseHistoryEntry,
+  CamlUnknownBlock,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -370,6 +372,21 @@ function parseAnnotationEmbed(
 }
 
 // ---------------------------------------------------------------------------
+// Extract Embed
+// ---------------------------------------------------------------------------
+
+function parseExtractEmbed(
+  attrs: Record<string, string>,
+  _body: string
+): CamlExtractEmbed {
+  const ref = attrs.ref?.replace(/^@extract:/, "") || "";
+  const columns = attrs.columns
+    ? attrs.columns.split("|").map((s) => s.trim()).filter(Boolean)
+    : undefined;
+  return { type: "extract-embed", ref, columns };
+}
+
+// ---------------------------------------------------------------------------
 // Map
 // ---------------------------------------------------------------------------
 
@@ -539,13 +556,15 @@ export function parseBlock(
       return parseCorpusStats(attrs, body);
     case "annotation-embed":
       return parseAnnotationEmbed(attrs, body);
+    case "extract-embed":
+      return parseExtractEmbed(attrs, body);
     case "map":
       return parseMap(attrs, body);
     case "case-history":
       return parseCaseHistory(attrs, body);
     default:
-      // Unknown block type — treat as prose
-      return { type: "prose", content: body };
+      // Unknown block type — pass through as CamlUnknownBlock
+      return { type, attrs, body } as CamlUnknownBlock;
   }
 }
 
