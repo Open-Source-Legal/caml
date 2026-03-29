@@ -17,6 +17,7 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlProse,
+  CamlImage,
   CamlMap,
   CamlCaseHistory,
 } from "@os-legal/caml";
@@ -94,6 +95,9 @@ import {
   CaseHistoryMeta,
   CaseHistoryAction,
   CaseHistoryDetail,
+  ImageBlockContainer,
+  ImageBlockImg,
+  ImageBlockCaption,
 } from "./styles";
 import {
   US_STATES_GRID,
@@ -108,6 +112,7 @@ interface BlockRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  resolveImageSrc?: (src: string) => string | undefined;
 }
 
 export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
@@ -116,6 +121,7 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  resolveImageSrc,
 }) => {
   switch (block.type) {
     case "prose":
@@ -144,6 +150,8 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
           <em>Annotation embed (coming soon)</em>
         </ProseContainer>
       );
+    case "image":
+      return <ImageBlock block={block} resolveImageSrc={resolveImageSrc} />;
     case "map":
       return <MapBlock block={block} />;
     case "case-history":
@@ -227,6 +235,39 @@ function splitPullquotes(content: string): TextSegment[] {
   if (currentProse.length > 0) flushProse();
 
   return segments;
+}
+
+// ---------------------------------------------------------------------------
+// Image
+// ---------------------------------------------------------------------------
+
+function ImageBlock({
+  block,
+  resolveImageSrc,
+}: {
+  block: CamlImage;
+  resolveImageSrc?: (src: string) => string | undefined;
+}) {
+  const resolvedSrc = resolveImageSrc ? resolveImageSrc(block.src) : undefined;
+  const finalSrc = resolvedSrc ?? block.src;
+
+  // If the src uses a custom protocol (e.g. corpus://) and wasn't resolved,
+  // there's nothing to render.
+  if (!finalSrc || finalSrc.includes("://") && !finalSrc.startsWith("http")) {
+    return null;
+  }
+
+  return (
+    <ImageBlockContainer>
+      <ImageBlockImg
+        src={finalSrc}
+        alt={block.alt ?? block.caption ?? ""}
+        $size={block.size}
+        $shape={block.shape}
+      />
+      {block.caption && <ImageBlockCaption>{block.caption}</ImageBlockCaption>}
+    </ImageBlockContainer>
+  );
 }
 
 // ---------------------------------------------------------------------------

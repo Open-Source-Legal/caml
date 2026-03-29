@@ -148,6 +148,15 @@ export interface CamlAnnotationEmbed {
   ref: string;
 }
 
+export interface CamlImage {
+  type: "image";
+  src: string;
+  alt?: string;
+  caption?: string;
+  size?: "sm" | "md" | "lg" | "xl";
+  shape?: "square" | "rounded" | "avatar";
+}
+
 export interface CamlMapLegendItem {
   label: string;
   color: string;
@@ -197,6 +206,7 @@ export type CamlBlock =
   | CamlSignup
   | CamlCorpusStats
   | CamlAnnotationEmbed
+  | CamlImage
   | CamlMap
   | CamlCaseHistory;
 

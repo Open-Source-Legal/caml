@@ -19,6 +19,7 @@ export interface CamlArticleProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  resolveImageSrc?: (src: string) => string | undefined;
 }
 
 export const CamlArticle: React.FC<CamlArticleProps> = ({
@@ -26,6 +27,7 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  resolveImageSrc,
 }) => {
   return (
     <ArticleContainer>
@@ -38,6 +40,7 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
+          resolveImageSrc={resolveImageSrc}
         />
       ))}
 

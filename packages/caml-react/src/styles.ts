@@ -1034,3 +1034,46 @@ export const CaseHistoryDetail = styled.p`
   line-height: 1.5;
   margin: 0.5rem 0 0;
 `;
+
+// ---------------------------------------------------------------------------
+// Image
+// ---------------------------------------------------------------------------
+
+const imageSizeMap = {
+  sm: "48px",
+  md: "80px",
+  lg: "120px",
+  xl: "200px",
+};
+
+const imageBorderRadiusMap = {
+  square: "0",
+  rounded: "12px",
+  avatar: "50%",
+};
+
+export const ImageBlockContainer = styled.figure`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 2rem 0;
+  padding: 0;
+`;
+
+export const ImageBlockImg = styled.img<{
+  $size?: "sm" | "md" | "lg" | "xl";
+  $shape?: "square" | "rounded" | "avatar";
+}>`
+  width: ${({ $size }) => imageSizeMap[$size ?? "md"]};
+  height: ${({ $size }) => imageSizeMap[$size ?? "md"]};
+  border-radius: ${({ $shape }) => imageBorderRadiusMap[$shape ?? "rounded"]};
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+`;
+
+export const ImageBlockCaption = styled.figcaption`
+  font-size: 0.8125rem;
+  color: ${({ theme }) => theme.caml.colors.textSecondary};
+  text-align: center;
+`;
