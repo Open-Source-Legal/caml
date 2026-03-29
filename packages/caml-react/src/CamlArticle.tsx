@@ -7,7 +7,7 @@
 import React from "react";
 import type { ReactNode } from "react";
 
-import type { CamlDocument } from "@os-legal/caml";
+import type { CamlDocument, CamlInlineDirective } from "@os-legal/caml";
 import type { CamlStats } from "./theme";
 import { CamlHeroRenderer } from "./CamlHero";
 import { CamlChapterRenderer } from "./CamlChapter";
@@ -19,6 +19,7 @@ export interface CamlArticleProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
 }
 
 export const CamlArticle: React.FC<CamlArticleProps> = ({
@@ -26,6 +27,7 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  renderDirective,
 }) => {
   return (
     <ArticleContainer>
@@ -38,6 +40,7 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
+          renderDirective={renderDirective}
         />
       ))}
 

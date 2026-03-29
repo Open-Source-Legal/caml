@@ -7,6 +7,7 @@
 
 import type {
   CamlBlock,
+  CamlProse,
   CamlCards,
   CamlCardItem,
   CamlPills,
@@ -28,6 +29,7 @@ import type {
   CamlCaseHistory,
   CamlCaseHistoryEntry,
 } from "./types";
+import { extractInlineDirectives } from "./inlineDirectives";
 
 // ---------------------------------------------------------------------------
 // Cards
@@ -543,9 +545,15 @@ export function parseBlock(
       return parseMap(attrs, body);
     case "case-history":
       return parseCaseHistory(attrs, body);
-    default:
-      // Unknown block type — treat as prose
-      return { type: "prose", content: body };
+    default: {
+      // Unknown block type — treat as prose (with directive extraction)
+      const result = extractInlineDirectives(body);
+      const prose: CamlProse = { type: "prose", content: result.content };
+      if (result.directives.length > 0) {
+        prose.directives = result.directives;
+      }
+      return prose;
+    }
   }
 }
 
