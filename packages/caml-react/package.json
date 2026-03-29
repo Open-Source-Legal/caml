@@ -1,6 +1,6 @@
 {
   "name": "@os-legal/caml-react",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "React renderer for CAML (Corpus Article Markup Language) articles",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "build-storybook": "storybook build -o ../../storybook-static"
   },
   "dependencies": {
-    "@os-legal/caml": "workspace:*"
+    "@os-legal/caml": "^0.0.1"
   },
   "peerDependencies": {
     "react": ">=17",
