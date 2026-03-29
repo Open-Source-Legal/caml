@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org
 
       - name: Enable Corepack
@@ -33,12 +33,20 @@ jobs:
 
       - name: Publish @os-legal/caml
         working-directory: packages/caml
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@os-legal/caml@$VERSION" version 2>/dev/null; then
+            echo "v$VERSION already published, skipping"
+          else
+            npm publish --access public --provenance
+          fi
 
       - name: Publish @os-legal/caml-react
         working-directory: packages/caml-react
-        run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@os-legal/caml-react@$VERSION" version 2>/dev/null; then
+            echo "v$VERSION already published, skipping"
+          else
+            npm publish --access public --provenance
+          fi

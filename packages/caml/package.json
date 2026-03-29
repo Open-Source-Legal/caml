@@ -4,6 +4,11 @@
   "type": "module",
   "description": "CAML (Corpus Article Markup Language) parser — zero-dependency markdown superset for legal articles",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Open-Source-Legal/caml.git",
+    "directory": "packages/caml"
+  },
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
