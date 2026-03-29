@@ -45,14 +45,13 @@ function parseCardItem(raw: string): CamlCardItem {
   const headerLine = lines[0].trim();
 
   // Parse header: **Label** | meta | #color
-  const headerMatch = headerLine.match(
-    /^\*\*(.+?)\*\*(?:\s*\|\s*(.+?))?(?:\s*\|\s*(#[0-9a-fA-F]{6}))?$/
-  );
+  const parts = headerLine.split("|").map((s) => s.trim());
+  const boldMatch = parts[0].match(/^\*\*([^*]+)\*\*$/);
 
   const item: CamlCardItem = {
-    label: headerMatch ? headerMatch[1].trim() : headerLine,
-    meta: headerMatch?.[2]?.trim(),
-    accent: headerMatch?.[3]?.trim(),
+    label: boldMatch ? boldMatch[1].trim() : parts[0],
+    meta: parts[1] || undefined,
+    accent: parts[2]?.match(/^#[0-9a-fA-F]{6}$/) ? parts[2] : undefined,
   };
 
   // Parse body and footer from remaining lines
@@ -87,25 +86,25 @@ function parsePillItem(raw: string): CamlPillItem {
   const headerLine = lines[0].trim();
 
   // Parse header: BIG_TEXT | **Label** | detail
-  const headerMatch = headerLine.match(
-    /^(.+?)\s*\|\s*\*\*(.+?)\*\*(?:\s*\|\s*(.+))?$/
-  );
+  const parts = headerLine.split("|").map((s) => s.trim());
+  const boldMatch = parts[1]?.match(/^\*\*([^*]+)\*\*$/);
 
   const item: CamlPillItem = {
-    bigText: headerMatch ? headerMatch[1].trim() : headerLine,
-    label: headerMatch ? headerMatch[2].trim() : "",
-    detail: headerMatch?.[3]?.trim(),
+    bigText: parts[0] || headerLine,
+    label: boldMatch ? boldMatch[1].trim() : (parts[1] || ""),
+    detail: parts[2] || undefined,
   };
 
   // Parse status line
   for (let i = 1; i < lines.length; i++) {
     const trimmed = lines[i].trim();
-    const statusMatch = trimmed.match(
-      /^status:\s*(.+?)(?:\s*\|\s*(#[0-9a-fA-F]{6}))?$/
-    );
-    if (statusMatch) {
-      item.status = statusMatch[1].trim();
-      item.statusColor = statusMatch[2]?.trim();
+    if (trimmed.startsWith("status:")) {
+      const statusParts = trimmed.slice(7).split("|").map((s) => s.trim());
+      item.status = statusParts[0];
+      const colorPart = statusParts[1];
+      if (colorPart?.match(/^#[0-9a-fA-F]{6}$/)) {
+        item.statusColor = colorPart;
+      }
     }
   }
 
@@ -197,14 +196,16 @@ function parseTabContent(attrsStr: string, body: string): CamlTab {
     }
 
     // Section heading: #### Heading {highlight}
-    const headingMatch = trimmed.match(
-      /^####\s+(.+?)(?:\s*\{highlight\})?\s*$/
-    );
-    if (headingMatch) {
+    if (trimmed.startsWith("#### ")) {
       flushSection();
+      let headingText = trimmed.slice(4).trim();
+      const isHighlight = headingText.endsWith("{highlight}");
+      if (isHighlight) {
+        headingText = headingText.slice(0, -"{highlight}".length).trim();
+      }
       currentSection = {
-        heading: headingMatch[1].trim(),
-        highlight: trimmed.includes("{highlight}"),
+        heading: headingText,
+        highlight: isHighlight,
         content: "",
       };
       continue;
@@ -256,14 +257,9 @@ function parseTimeline(
 
     if (inLegend) {
       if (trimmed.startsWith("- ")) {
-        const legendMatch = trimmed
-          .slice(2)
-          .match(/^(.+?)\s*\|\s*(#[0-9a-fA-F]{6})\s*$/);
-        if (legendMatch) {
-          legend.push({
-            label: legendMatch[1].trim(),
-            color: legendMatch[2],
-          });
+        const parts = trimmed.slice(2).split("|").map((s) => s.trim());
+        if (parts[1]?.match(/^#[0-9a-fA-F]{6}$/)) {
+          legend.push({ label: parts[0], color: parts[1] });
         }
       } else if (trimmed === "" || trimmed.startsWith("-")) {
         inLegend = false;
@@ -273,14 +269,12 @@ function parseTimeline(
     }
 
     if (!inLegend && trimmed.startsWith("- ")) {
-      const itemMatch = trimmed
-        .slice(2)
-        .match(/^(.+?)\s*\|\s*(.+?)\s*\|\s*(.+)$/);
-      if (itemMatch) {
+      const parts = trimmed.slice(2).split("|").map((s) => s.trim());
+      if (parts.length >= 3) {
         items.push({
-          date: itemMatch[1].trim(),
-          label: itemMatch[2].trim(),
-          side: itemMatch[3].trim().toLowerCase(),
+          date: parts[0],
+          label: parts[1],
+          side: parts[2].toLowerCase(),
         });
       }
     }
@@ -302,7 +296,7 @@ function parseCta(_attrs: Record<string, string>, body: string): CamlCta {
     if (!trimmed.startsWith("- ")) continue;
 
     // Parse: - [Label](href) {primary}
-    const match = trimmed.match(/^-\s*\[(.+?)\]\((.+?)\)(?:\s*\{primary\})?$/);
+    const match = trimmed.match(/^-\s*\[([^\]]+)\]\(([^)]+)\)(?:\s*\{primary\})?$/);
     if (match) {
       items.push({
         label: match[1],
@@ -326,7 +320,7 @@ function parseSignup(_attrs: Record<string, string>, body: string): CamlSignup {
 
   for (const line of lines) {
     const trimmed = line.trim();
-    const kvMatch = trimmed.match(/^(title|button):\s*(.+)$/);
+    const kvMatch = trimmed.match(/^(title|button):[ \t]*(\S.*)$/);
     if (kvMatch) {
       if (kvMatch[1] === "title") result.title = kvMatch[2].trim();
       if (kvMatch[1] === "button") result.button = kvMatch[2].trim();
@@ -353,9 +347,9 @@ function parseCorpusStats(
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed.startsWith("- ")) continue;
-    const match = trimmed.slice(2).match(/^(.+?)\s*\|\s*(.+)$/);
-    if (match) {
-      items.push({ key: match[1].trim(), label: match[2].trim() });
+    const parts = trimmed.slice(2).split("|").map((s) => s.trim());
+    if (parts.length >= 2) {
+      items.push({ key: parts[0], label: parts[1] });
     }
   }
 
@@ -401,14 +395,9 @@ function parseMap(attrs: Record<string, string>, body: string): CamlMap {
 
     if (inLegend) {
       if (trimmed.startsWith("- ")) {
-        const legendMatch = trimmed
-          .slice(2)
-          .match(/^(.+?)\s*\|\s*(#[0-9a-fA-F]{6})\s*$/);
-        if (legendMatch) {
-          legend.push({
-            label: legendMatch[1].trim(),
-            color: legendMatch[2],
-          });
+        const parts = trimmed.slice(2).split("|").map((s) => s.trim());
+        if (parts[1]?.match(/^#[0-9a-fA-F]{6}$/)) {
+          legend.push({ label: parts[0], color: parts[1] });
         } else {
           inLegend = false;
         }
@@ -488,7 +477,7 @@ function parseCaseHistory(
     const trimmed = line.trim();
 
     // Key-value header
-    const kvMatch = trimmed.match(/^(title|docket|status):\s*(.+)$/);
+    const kvMatch = trimmed.match(/^(title|docket|status):[ \t]*(\S.*)$/);
     if (kvMatch) {
       const key = kvMatch[1] as "title" | "docket" | "status";
       result[key] = kvMatch[2].trim();

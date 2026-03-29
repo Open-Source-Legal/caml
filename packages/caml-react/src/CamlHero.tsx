@@ -19,7 +19,7 @@ export interface CamlHeroRendererProps {
  * Render a title line, wrapping {text} in accent spans.
  */
 function renderTitleLine(line: string, index: number): React.ReactNode {
-  const parts = line.split(/(\{[^}]+\})/);
+  const parts = line.split(/(\{[^{}]+\})/);
   return (
     <React.Fragment key={index}>
       {index > 0 && <br />}

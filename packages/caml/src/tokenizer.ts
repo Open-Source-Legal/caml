@@ -402,7 +402,7 @@ export function parseCaml(source: string): CamlDocument {
   let frontmatter: CamlFrontmatter = {};
   let body = source;
 
-  const fmMatch = source.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
+  const fmMatch = source.match(/^---[ \t]*\n([\s\S]*?)\n---[ \t]*\n([\s\S]*)$/);
   if (fmMatch) {
     frontmatter = parseYamlFrontmatter(fmMatch[1]);
     body = fmMatch[2];
