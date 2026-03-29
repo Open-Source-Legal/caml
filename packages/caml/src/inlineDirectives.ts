@@ -3,6 +3,9 @@
  *
  * Extracts {{@agent scope [key=value ...]}} markers from prose content.
  * Pure function, zero dependencies.
+ *
+ * All stripping of directive markers uses a manual string scanner
+ * (not regex) to avoid ReDoS on untrusted input.
  */
 
 import type { CamlInlineDirective } from "./types";
@@ -10,15 +13,74 @@ import type { CamlInlineDirective } from "./types";
 /**
  * Pattern for inline directives: {{@agent scope [key=value ...]}}
  *
- * - agent: word characters (letters, digits, underscore, hyphen)
- * - scope: sentence | paragraph | block
- * - args: everything between scope and closing }}
- *
- * The args group uses [^}]* (no overlapping quantifiers) to prevent
- * ReDoS. The parseArgs function handles trimming leading whitespace.
+ * Only used in the controlled exec() loop where each successful match
+ * advances the position. Never used in .replace() on untrusted input.
  */
 const DIRECTIVE_PATTERN =
   /\{\{@([a-zA-Z][a-zA-Z0-9_-]*) +(sentence|paragraph|block)([^}]*)\}\}/g;
+
+// ---------------------------------------------------------------------------
+// Manual directive stripping (no regex on untrusted data)
+// ---------------------------------------------------------------------------
+
+/**
+ * Find all valid `{{@agent scope ...}}` marker spans in a string.
+ * Uses indexOf to find `{{@` candidates, then validates that an agent
+ * name (letter followed by word chars) immediately follows.
+ * Returns an array of [start, end] pairs.
+ */
+function findDirectiveSpans(text: string): Array<[number, number]> {
+  const spans: Array<[number, number]> = [];
+  let searchFrom = 0;
+
+  while (searchFrom < text.length) {
+    const open = text.indexOf("{{@", searchFrom);
+    if (open === -1) break;
+
+    // Validate: must have an agent name starting with a letter after {{@
+    const afterAt = open + 3;
+    if (afterAt >= text.length) break;
+    const firstChar = text.charCodeAt(afterAt);
+    const isLetter =
+      (firstChar >= 65 && firstChar <= 90) ||
+      (firstChar >= 97 && firstChar <= 122);
+    if (!isLetter) {
+      searchFrom = afterAt;
+      continue;
+    }
+
+    const close = text.indexOf("}}", afterAt);
+    if (close === -1) break;
+
+    spans.push([open, close + 2]);
+    searchFrom = close + 2;
+  }
+
+  return spans;
+}
+
+/**
+ * Strip all `{{@...}}` markers from text using manual scanning.
+ * This avoids running any regex on the input string.
+ */
+function stripDirectives(text: string): string {
+  const spans = findDirectiveSpans(text);
+  if (spans.length === 0) return text;
+
+  const parts: string[] = [];
+  let pos = 0;
+  for (const [start, end] of spans) {
+    parts.push(text.slice(pos, start));
+    pos = end;
+  }
+  parts.push(text.slice(pos));
+
+  return parts.join("");
+}
+
+// ---------------------------------------------------------------------------
+// Argument parsing (manual scanner, no regex)
+// ---------------------------------------------------------------------------
 
 /**
  * Parse key=value argument pairs from a directive's argument string.
@@ -40,11 +102,27 @@ function parseArgs(raw: string | undefined): Record<string, string> {
     while (i < str.length && str[i] === " ") i++;
     if (i >= str.length) break;
 
-    // Read key: [a-zA-Z_][a-zA-Z0-9_-]*
+    // Read key: starts with letter or underscore, continues with alnum/hyphen/underscore
     const keyStart = i;
-    if (!/[a-zA-Z_]/.test(str[i])) { i++; continue; }
+    const c = str.charCodeAt(i);
+    const isAlpha =
+      (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || c === 95; // A-Z, a-z, _
+    if (!isAlpha) {
+      i++;
+      continue;
+    }
     i++;
-    while (i < str.length && /[a-zA-Z0-9_-]/.test(str[i])) i++;
+    while (i < str.length) {
+      const cc = str.charCodeAt(i);
+      const isKeyCh =
+        (cc >= 65 && cc <= 90) ||
+        (cc >= 97 && cc <= 122) ||
+        (cc >= 48 && cc <= 57) ||
+        cc === 95 ||
+        cc === 45; // A-Z, a-z, 0-9, _, -
+      if (!isKeyCh) break;
+      i++;
+    }
     const key = str.slice(keyStart, i);
 
     // Expect '='
@@ -74,6 +152,10 @@ function parseArgs(raw: string | undefined): Record<string, string> {
   return args;
 }
 
+// ---------------------------------------------------------------------------
+// Scope resolution
+// ---------------------------------------------------------------------------
+
 /**
  * Resolve the context string for a directive based on its scope.
  *
@@ -87,67 +169,66 @@ function resolveContext(
   scope: "sentence" | "paragraph" | "block"
 ): string {
   if (scope === "block") {
-    // Strip all directives from the full content
-    return content.replace(DIRECTIVE_PATTERN, "").trim();
+    return stripDirectives(content).trim();
   }
 
   if (scope === "paragraph") {
-    // Find the paragraph boundaries (double newlines)
     const before = content.lastIndexOf("\n\n", offset);
     const after = content.indexOf("\n\n", offset);
     const start = before === -1 ? 0 : before + 2;
     const end = after === -1 ? content.length : after;
-    return content
-      .slice(start, end)
-      .replace(DIRECTIVE_PATTERN, "")
-      .trim();
+    return stripDirectives(content.slice(start, end)).trim();
   }
 
   // scope === "sentence"
   // The directive annotates the sentence immediately preceding it.
-  // Strategy: take the text before the directive, trim whitespace,
-  // then find the last complete sentence in that text.
   const textBefore = content.slice(0, offset).trimEnd();
 
   // Find all sentence-ending positions (., !, ?)
   const endings: number[] = [];
   for (let i = 0; i < textBefore.length; i++) {
-    if (textBefore[i] === "." || textBefore[i] === "!" || textBefore[i] === "?") {
+    if (
+      textBefore[i] === "." ||
+      textBefore[i] === "!" ||
+      textBefore[i] === "?"
+    ) {
       endings.push(i);
     }
   }
 
   if (endings.length === 0) {
-    // No sentence-ending punctuation — use all text before the directive
-    return textBefore.replace(DIRECTIVE_PATTERN, "").trim();
+    return stripDirectives(textBefore).trim();
   }
 
-  // The last ending is the end of the sentence we want.
   const sentenceEnd = endings[endings.length - 1] + 1;
 
-  // Find where this sentence starts: after the previous sentence ending + whitespace,
-  // or after a paragraph break, or the start of text.
   let sentenceStart = 0;
-
   if (endings.length >= 2) {
-    // Start after the previous sentence's ending punctuation + whitespace
     const prevEnd = endings[endings.length - 2] + 1;
     sentenceStart = prevEnd;
-    // Skip whitespace after the previous sentence
-    while (sentenceStart < sentenceEnd && /\s/.test(textBefore[sentenceStart])) {
-      sentenceStart++;
+    while (sentenceStart < sentenceEnd) {
+      const sc = textBefore.charCodeAt(sentenceStart);
+      // Skip space (32), tab (9), newline (10), carriage return (13)
+      if (sc === 32 || sc === 9 || sc === 10 || sc === 13) {
+        sentenceStart++;
+      } else {
+        break;
+      }
     }
   }
 
-  // Check if there's a paragraph break that's closer
   const lastParaBreak = textBefore.lastIndexOf("\n\n", sentenceEnd);
   if (lastParaBreak !== -1 && lastParaBreak + 2 > sentenceStart) {
     sentenceStart = lastParaBreak + 2;
   }
 
   const sentenceText = textBefore.slice(sentenceStart, sentenceEnd);
-  return sentenceText.replace(DIRECTIVE_PATTERN, "").trim();
+  return stripDirectives(sentenceText).trim();
 }
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
 
 export interface ExtractResult {
   /** Content with all directive markers stripped */
@@ -167,7 +248,9 @@ export interface ExtractResult {
 export function extractInlineDirectives(content: string): ExtractResult {
   const directives: CamlInlineDirective[] = [];
 
-  // First pass: collect all directives with their positions
+  // First pass: collect all directives with their positions using regex exec.
+  // This is the only place the regex runs — each successful match advances
+  // lastIndex so there is no backtracking across the full string.
   let match: RegExpExecArray | null;
   const pattern = new RegExp(DIRECTIVE_PATTERN.source, "g");
 
@@ -186,15 +269,57 @@ export function extractInlineDirectives(content: string): ExtractResult {
     });
   }
 
-  // Second pass: strip directive markers from content
-  const cleaned = content
-    .replace(pattern, "")
-    // Clean up leftover whitespace artifacts: double spaces, trailing spaces
-    .replace(/ {2,}/g, " ")
-    .replace(/ +$/gm, "")
-    // Remove blank lines that were only directives
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  // Second pass: strip directive markers using manual scanner (no regex)
+  let cleaned = stripDirectives(content);
+
+  // Clean up whitespace artifacts left by removed markers
+  // Use indexOf-based cleaning instead of regex
+  cleaned = collapseSpaces(cleaned).trim();
 
   return { content: cleaned, directives };
+}
+
+/**
+ * Collapse runs of 2+ spaces to single space, trim trailing spaces on lines,
+ * and collapse 3+ consecutive newlines to double newline.
+ * Uses manual scanning instead of regex.
+ */
+function collapseSpaces(text: string): string {
+  const lines = text.split("\n");
+  const result: string[] = [];
+  let consecutiveEmpty = 0;
+
+  for (const line of lines) {
+    // Collapse runs of spaces within the line
+    let collapsed = "";
+    let prevSpace = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === " ") {
+        if (!prevSpace) {
+          collapsed += " ";
+        }
+        prevSpace = true;
+      } else {
+        collapsed += line[i];
+        prevSpace = false;
+      }
+    }
+    // Trim trailing spaces
+    let end = collapsed.length;
+    while (end > 0 && collapsed[end - 1] === " ") end--;
+    collapsed = collapsed.slice(0, end);
+
+    // Collapse blank lines (allow max 1 consecutive blank line)
+    if (collapsed === "") {
+      consecutiveEmpty++;
+      if (consecutiveEmpty <= 1) {
+        result.push("");
+      }
+    } else {
+      consecutiveEmpty = 0;
+      result.push(collapsed);
+    }
+  }
+
+  return result.join("\n");
 }
