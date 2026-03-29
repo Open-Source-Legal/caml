@@ -13,26 +13,62 @@ import type { CamlInlineDirective } from "./types";
  * - agent: word characters (letters, digits, underscore, hyphen)
  * - scope: sentence | paragraph | block
  * - args: optional key=value pairs (value may be quoted)
+ *
+ * Uses [^}]* instead of .*? for the args group to avoid ReDoS.
+ * Args cannot contain '}' characters, so this is safe.
  */
 const DIRECTIVE_PATTERN =
-  /\{\{@([a-zA-Z][a-zA-Z0-9_-]*)\s+(sentence|paragraph|block)(?:\s+(.*?))?\}\}/g;
+  /\{\{@([a-zA-Z][a-zA-Z0-9_-]*) +(sentence|paragraph|block)(?: +([^}]*))?\}\}/g;
 
 /**
  * Parse key=value argument pairs from a directive's argument string.
  *
  * Supports: key=value, key="quoted value", key='quoted value'
+ *
+ * Uses a manual character-by-character parser instead of regex
+ * to avoid ReDoS vulnerabilities on untrusted input.
  */
 function parseArgs(raw: string | undefined): Record<string, string> {
   const args: Record<string, string> = {};
   if (!raw) return args;
 
-  // Match key=value or key="value" or key='value'
-  const argPattern = /([a-zA-Z_][a-zA-Z0-9_-]*)=(?:"([^"]*)"|'([^']*)'|(\S+))/g;
-  let match: RegExpExecArray | null;
-  while ((match = argPattern.exec(raw)) !== null) {
-    const key = match[1];
-    const value = match[2] ?? match[3] ?? match[4];
-    args[key] = value;
+  const str = raw.trim();
+  let i = 0;
+
+  while (i < str.length) {
+    // Skip whitespace
+    while (i < str.length && str[i] === " ") i++;
+    if (i >= str.length) break;
+
+    // Read key: [a-zA-Z_][a-zA-Z0-9_-]*
+    const keyStart = i;
+    if (!/[a-zA-Z_]/.test(str[i])) { i++; continue; }
+    i++;
+    while (i < str.length && /[a-zA-Z0-9_-]/.test(str[i])) i++;
+    const key = str.slice(keyStart, i);
+
+    // Expect '='
+    if (i >= str.length || str[i] !== "=") continue;
+    i++; // skip '='
+
+    // Read value: quoted or unquoted
+    let value: string;
+    if (i < str.length && (str[i] === '"' || str[i] === "'")) {
+      const quote = str[i];
+      i++; // skip opening quote
+      const valStart = i;
+      while (i < str.length && str[i] !== quote) i++;
+      value = str.slice(valStart, i);
+      if (i < str.length) i++; // skip closing quote
+    } else {
+      const valStart = i;
+      while (i < str.length && str[i] !== " ") i++;
+      value = str.slice(valStart, i);
+    }
+
+    if (key && value !== undefined) {
+      args[key] = value;
+    }
   }
 
   return args;
