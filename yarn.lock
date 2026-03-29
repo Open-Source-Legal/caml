@@ -775,7 +775,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@os-legal/caml@npm:^0.0.1, @os-legal/caml@workspace:packages/caml":
+"@os-legal/caml@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@os-legal/caml@npm:0.0.1"
+  checksum: 10c0/c4b68b3e018406de4741360d3efe37655f4ddb348251e83ec3a76020a3f3353aad4c1f8e202dea8dab26ab31052d7e4b7c6485bbbfce5a82d316f4746c33bbd1
+  languageName: node
+  linkType: hard
+
+"@os-legal/caml@workspace:packages/caml":
   version: 0.0.0-use.local
   resolution: "@os-legal/caml@workspace:packages/caml"
   dependencies:
