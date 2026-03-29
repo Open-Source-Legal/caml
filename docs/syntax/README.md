@@ -408,6 +408,79 @@ Live data display bound to corpus metrics.
 
 Values are provided at render time via the `stats` prop on `CamlArticle`, not in the CAML source.
 
+### Image
+
+Embeds an image with configurable size, shape, and caption. Supports direct URLs and consumer-defined protocol schemes via a `resolveImageSrc` callback.
+
+**Top-level:**
+```
+::: image {src: https://example.com/logo.png, size: lg, shape: rounded}
+caption: Company logo
+alt: Example Corp logo
+:::
+```
+
+**Inside a chapter:**
+```
+:::: image {src: corpus://current, size: lg, shape: avatar}
+caption: SEC Filings Collection
+alt: Corpus icon
+::::
+
+:::: image {src: https://example.com/partner-logo.png, size: sm, shape: rounded}
+::::
+
+:::: image {src: upload:cover.png}
+caption: Report cover page
+::::
+```
+
+#### Image Attributes
+
+| Attribute | Values | Default | Description |
+|-----------|--------|---------|-------------|
+| `src` | any string | _(required)_ | Image source. Can be an `https://` URL (rendered directly) or a protocol scheme (e.g., `corpus://current`, `upload:file.png`) resolved via the `resolveImageSrc` callback at render time. |
+| `size` | `sm`, `md`, `lg` | none (native) | Image dimensions. `sm` = 48×48, `md` = 96×96, `lg` = 192×192. When omitted, the image renders at its native aspect ratio with `max-width: 100%`. |
+| `shape` | `native`, `rounded`, `avatar`, `cropped` | none (native) | Image clipping shape. `native` = no clipping, `rounded` = 12px border-radius, `avatar` = circular clip (50%), `cropped` = `object-fit: cover` in square container. |
+| `alt` | string | none | Alt text for the image. Can also be specified as a body key-value line. Body value takes priority over the attribute. |
+
+#### Size Semantics
+
+| Size | Dimensions | Use case |
+|------|-----------|----------|
+| `sm` | 48×48 | Inline reference, pill-like |
+| `md` | 96×96 | Card header, sidebar |
+| `lg` | 192×192 | Hero/splash, landing page |
+| _(omitted)_ | native | Unconstrained, `max-width: 100%` |
+
+#### Shape Semantics
+
+| Shape | Rendering |
+|-------|-----------|
+| `native` | No clipping, original aspect ratio |
+| `rounded` | `border-radius: 12px` |
+| `avatar` | Circular clip (`border-radius: 50%`) |
+| `cropped` | `object-fit: cover` in square container |
+
+#### Body Key-Value Lines
+
+Inside the image fence body, two key-value lines are recognized:
+
+| Key | Required | Description |
+|-----|----------|-------------|
+| `caption:` | No | Caption text displayed below the image. |
+| `alt:` | No | Alt text. Overrides the `alt` attribute if both are present. |
+
+#### Renderer Resolution Logic
+
+The renderer resolves the `src` value as follows:
+
+1. If `src` matches `https?://` — render the `<img>` directly (no callback needed).
+2. Otherwise, call the `resolveImageSrc(src)` callback — if it returns a URL, render the `<img>`.
+3. If no callback is provided or it returns `undefined` — render a placeholder.
+
+This keeps the renderer generic. Each consumer defines their own protocol handlers via the `resolveImageSrc` prop on `CamlArticle`.
+
 ### Annotation Embed
 
 Embeds a referenced annotation (placeholder in v1).
@@ -584,6 +657,10 @@ likely to include pandemic-specific language."
 ::: chapter {#analysis}
 >! Section 02
 ## Clause Analysis
+
+:::: image {src: https://example.com/analysis-chart.png, size: lg, shape: rounded}
+caption: Clause adoption trends, 2020–2024
+::::
 
 :::: cards {columns: 2}
 - **Force Majeure** | 89% adoption | #0f766e

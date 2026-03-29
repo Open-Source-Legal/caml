@@ -16,6 +16,7 @@ export interface CamlChapterRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  resolveImageSrc?: (src: string) => string | undefined;
 }
 
 export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
@@ -23,6 +24,7 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  resolveImageSrc,
 }) => {
   const isDark = chapter.theme === "dark" || chapter.gradient;
 
@@ -52,6 +54,7 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
+          resolveImageSrc={resolveImageSrc}
         />
       ))}
     </ChapterSection>

@@ -870,6 +870,117 @@ export const MapHeatmapLabel = styled.span`
 `;
 
 // ---------------------------------------------------------------------------
+// Image
+// ---------------------------------------------------------------------------
+
+export const ImageBlockContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 0;
+`;
+
+export const ImageBlockImg = styled.img<{
+  $size?: "sm" | "md" | "lg";
+  $shape?: "native" | "rounded" | "avatar" | "cropped";
+}>`
+  display: block;
+  max-width: 100%;
+
+  ${({ $size }) => {
+    switch ($size) {
+      case "sm":
+        return css`
+          width: 48px;
+          height: 48px;
+        `;
+      case "md":
+        return css`
+          width: 96px;
+          height: 96px;
+        `;
+      case "lg":
+        return css`
+          width: 192px;
+          height: 192px;
+        `;
+      default:
+        return css`
+          max-width: 100%;
+          height: auto;
+        `;
+    }
+  }}
+
+  ${({ $shape }) => {
+    switch ($shape) {
+      case "rounded":
+        return css`
+          border-radius: 12px;
+        `;
+      case "avatar":
+        return css`
+          border-radius: 50%;
+        `;
+      case "cropped":
+        return css`
+          object-fit: cover;
+        `;
+      default:
+        return "";
+    }
+  }}
+`;
+
+export const ImageBlockCaption = styled.p`
+  font-size: 0.8125rem;
+  color: ${({ theme }) => theme.caml.colors.textSecondary};
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+  max-width: 480px;
+`;
+
+export const ImageBlockPlaceholder = styled.div<{
+  $size?: "sm" | "md" | "lg";
+}>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${({ theme }) => theme.caml.colors.surfaceLight};
+  border: 1px dashed ${({ theme }) => theme.caml.colors.border};
+  border-radius: 8px;
+  color: ${({ theme }) => theme.caml.colors.textMuted};
+  font-size: 0.75rem;
+
+  ${({ $size }) => {
+    switch ($size) {
+      case "sm":
+        return css`
+          width: 48px;
+          height: 48px;
+        `;
+      case "md":
+        return css`
+          width: 96px;
+          height: 96px;
+        `;
+      case "lg":
+        return css`
+          width: 192px;
+          height: 192px;
+        `;
+      default:
+        return css`
+          width: 192px;
+          height: 128px;
+        `;
+    }
+  }}
+`;
+
+// ---------------------------------------------------------------------------
 // Case History
 // ---------------------------------------------------------------------------
 

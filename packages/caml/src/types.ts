@@ -187,6 +187,15 @@ export interface CamlCaseHistory {
   entries: CamlCaseHistoryEntry[];
 }
 
+export interface CamlImage {
+  type: "image";
+  src: string;
+  alt?: string;
+  size?: "sm" | "md" | "lg";
+  shape?: "native" | "rounded" | "avatar" | "cropped";
+  caption?: string;
+}
+
 export type CamlBlock =
   | CamlProse
   | CamlCards
@@ -198,7 +207,8 @@ export type CamlBlock =
   | CamlCorpusStats
   | CamlAnnotationEmbed
   | CamlMap
-  | CamlCaseHistory;
+  | CamlCaseHistory
+  | CamlImage;
 
 // ---------------------------------------------------------------------------
 // Chapters

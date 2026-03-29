@@ -8,9 +8,11 @@ interface CamlShowcaseProps {
   source: string;
   /** Optional stats for corpus-stats blocks */
   stats?: Record<string, number>;
+  /** Optional image source resolver for image blocks */
+  resolveImageSrc?: (src: string) => string | undefined;
 }
 
-export function CamlShowcase({ source, stats }: CamlShowcaseProps) {
+export function CamlShowcase({ source, stats, resolveImageSrc }: CamlShowcaseProps) {
   const parsed = useMemo(() => {
     try {
       return parseCaml(source);
@@ -112,7 +114,7 @@ export function CamlShowcase({ source, stats }: CamlShowcaseProps) {
         </div>
         <CamlThemeProvider>
           {parsed ? (
-            <CamlArticle document={parsed} stats={stats} />
+            <CamlArticle document={parsed} stats={stats} resolveImageSrc={resolveImageSrc} />
           ) : (
             <div style={{ padding: "2rem", color: "#dc2626" }}>
               Parse error — check CAML source syntax

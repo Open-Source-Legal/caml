@@ -27,6 +27,7 @@ import type {
   CamlMapStateItem,
   CamlCaseHistory,
   CamlCaseHistoryEntry,
+  CamlImage,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -511,6 +512,44 @@ function parseCaseHistory(
 }
 
 // ---------------------------------------------------------------------------
+// Image
+// ---------------------------------------------------------------------------
+
+const VALID_IMAGE_SIZES = new Set(["sm", "md", "lg"]);
+const VALID_IMAGE_SHAPES = new Set(["native", "rounded", "avatar", "cropped"]);
+
+function parseImage(attrs: Record<string, string>, body: string): CamlImage {
+  const result: CamlImage = {
+    type: "image",
+    src: attrs.src || "",
+  };
+
+  if (attrs.size && VALID_IMAGE_SIZES.has(attrs.size)) {
+    result.size = attrs.size as CamlImage["size"];
+  }
+  if (attrs.shape && VALID_IMAGE_SHAPES.has(attrs.shape)) {
+    result.shape = attrs.shape as CamlImage["shape"];
+  }
+
+  // Parse body key-value lines for caption and alt
+  for (const line of body.split("\n")) {
+    const trimmed = line.trim();
+    const kvMatch = trimmed.match(/^(caption|alt):[ \t]*(\S.*)$/);
+    if (kvMatch) {
+      if (kvMatch[1] === "caption") result.caption = kvMatch[2].trim();
+      if (kvMatch[1] === "alt") result.alt = kvMatch[2].trim();
+    }
+  }
+
+  // alt can also come from attrs
+  if (!result.alt && attrs.alt) {
+    result.alt = attrs.alt;
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // Dispatcher
 // ---------------------------------------------------------------------------
 
@@ -543,6 +582,8 @@ export function parseBlock(
       return parseMap(attrs, body);
     case "case-history":
       return parseCaseHistory(attrs, body);
+    case "image":
+      return parseImage(attrs, body);
     default:
       // Unknown block type — treat as prose
       return { type: "prose", content: body };

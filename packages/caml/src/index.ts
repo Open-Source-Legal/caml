@@ -30,4 +30,5 @@ export type {
   CamlMapStateItem,
   CamlCaseHistory,
   CamlCaseHistoryEntry,
+  CamlImage,
 } from "./types";

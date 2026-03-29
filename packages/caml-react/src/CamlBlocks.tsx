@@ -19,6 +19,7 @@ import type {
   CamlProse,
   CamlMap,
   CamlCaseHistory,
+  CamlImage,
 } from "@os-legal/caml";
 import { isSafeHref, isExternalHref } from "./safeHref";
 import { CamlMarkdown } from "./CamlMarkdown";
@@ -94,6 +95,10 @@ import {
   CaseHistoryMeta,
   CaseHistoryAction,
   CaseHistoryDetail,
+  ImageBlockContainer,
+  ImageBlockImg,
+  ImageBlockCaption,
+  ImageBlockPlaceholder,
 } from "./styles";
 import {
   US_STATES_GRID,
@@ -108,6 +113,7 @@ interface BlockRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  resolveImageSrc?: (src: string) => string | undefined;
 }
 
 export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
@@ -116,6 +122,7 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  resolveImageSrc,
 }) => {
   switch (block.type) {
     case "prose":
@@ -148,6 +155,8 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
       return <MapBlock block={block} />;
     case "case-history":
       return <CaseHistoryBlock block={block} />;
+    case "image":
+      return <ImageBlock block={block} resolveImageSrc={resolveImageSrc} />;
     default:
       return null;
   }
@@ -603,6 +612,52 @@ function MapBlock({ block }: { block: CamlMap }) {
         </MapLegend>
       )}
     </MapContainer>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Image
+// ---------------------------------------------------------------------------
+
+function ImageBlock({
+  block,
+  resolveImageSrc,
+}: {
+  block: CamlImage;
+  resolveImageSrc?: (src: string) => string | undefined;
+}) {
+  // Resolution logic:
+  // 1. If src matches https?:// — use directly
+  // 2. Otherwise, call resolveImageSrc — if it returns a URL, use it
+  // 3. Fallback to placeholder
+  let resolvedSrc: string | undefined;
+  if (/^https?:\/\//.test(block.src)) {
+    resolvedSrc = block.src;
+  } else if (resolveImageSrc) {
+    resolvedSrc = resolveImageSrc(block.src);
+  }
+
+  return (
+    <ImageBlockContainer data-testid="image-block">
+      {resolvedSrc ? (
+        <ImageBlockImg
+          src={resolvedSrc}
+          alt={block.alt || ""}
+          $size={block.size}
+          $shape={block.shape}
+          data-testid="image-block-img"
+        />
+      ) : (
+        <ImageBlockPlaceholder $size={block.size} data-testid="image-block-placeholder">
+          Image not available
+        </ImageBlockPlaceholder>
+      )}
+      {block.caption && (
+        <ImageBlockCaption data-testid="image-block-caption">
+          {block.caption}
+        </ImageBlockCaption>
+      )}
+    </ImageBlockContainer>
   );
 }
 

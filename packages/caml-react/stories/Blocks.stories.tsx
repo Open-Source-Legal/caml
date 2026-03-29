@@ -277,6 +277,67 @@ export const USMapWithCounts: StoryObj = {
 };
 
 // ---------------------------------------------------------------------------
+// Image (HTTPS URL)
+// ---------------------------------------------------------------------------
+
+const imageHttpsSource = `:::: image {src: https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400, size: lg, shape: rounded}
+caption: Contract review workspace
+alt: Legal documents on a desk
+::::`;
+
+export const ImageHttps: StoryObj = {
+  render: () => <CamlShowcase source={imageHttpsSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Image (Avatar)
+// ---------------------------------------------------------------------------
+
+const imageAvatarSource = `:::: image {src: https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=96, size: md, shape: avatar}
+caption: Corpus Icon
+alt: Corpus avatar
+::::`;
+
+export const ImageAvatar: StoryObj = {
+  render: () => <CamlShowcase source={imageAvatarSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Image (Protocol — Placeholder)
+// ---------------------------------------------------------------------------
+
+const imageProtocolSource = `:::: image {src: corpus://current, size: lg, shape: avatar}
+caption: SEC Filings Collection
+alt: Corpus icon
+::::`;
+
+export const ImageProtocol: StoryObj = {
+  render: () => <CamlShowcase source={imageProtocolSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Image (with resolveImageSrc)
+// ---------------------------------------------------------------------------
+
+const imageResolvedSource = `:::: image {src: corpus://current, size: lg, shape: avatar}
+caption: SEC Filings Collection
+alt: Corpus icon
+::::`;
+
+const sampleResolver = (src: string): string | undefined => {
+  if (src === "corpus://current") {
+    return "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=192";
+  }
+  return undefined;
+};
+
+export const ImageResolved: StoryObj = {
+  render: () => (
+    <CamlShowcase source={imageResolvedSource} resolveImageSrc={sampleResolver} />
+  ),
+};
+
+// ---------------------------------------------------------------------------
 // Case History
 // ---------------------------------------------------------------------------
 
