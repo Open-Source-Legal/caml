@@ -12,13 +12,13 @@ import type { CamlInlineDirective } from "./types";
  *
  * - agent: word characters (letters, digits, underscore, hyphen)
  * - scope: sentence | paragraph | block
- * - args: optional key=value pairs (value may be quoted)
+ * - args: everything between scope and closing }}
  *
- * Uses [^}]* instead of .*? for the args group to avoid ReDoS.
- * Args cannot contain '}' characters, so this is safe.
+ * The args group uses [^}]* (no overlapping quantifiers) to prevent
+ * ReDoS. The parseArgs function handles trimming leading whitespace.
  */
 const DIRECTIVE_PATTERN =
-  /\{\{@([a-zA-Z][a-zA-Z0-9_-]*) +(sentence|paragraph|block)(?: +([^}]*))?\}\}/g;
+  /\{\{@([a-zA-Z][a-zA-Z0-9_-]*) +(sentence|paragraph|block)([^}]*)\}\}/g;
 
 /**
  * Parse key=value argument pairs from a directive's argument string.
