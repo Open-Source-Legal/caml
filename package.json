@@ -14,7 +14,8 @@
     "generate-readme": "node scripts/generate-readme-assets.js"
   },
   "resolutions": {
-    "typescript": "~5.8.0"
+    "typescript": "~5.8.0",
+    "brace-expansion": ">=2.0.3"
   },
   "devDependencies": {
     "typescript": "~5.8.0",
