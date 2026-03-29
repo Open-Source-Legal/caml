@@ -34,6 +34,7 @@ jobs:
       - name: Publish @os-legal/caml
         working-directory: packages/caml
         run: |
+          unset NODE_AUTH_TOKEN
           VERSION=$(node -p "require('./package.json').version")
           if npm view "@os-legal/caml@$VERSION" version 2>/dev/null; then
             echo "v$VERSION already published, skipping"
@@ -44,6 +45,7 @@ jobs:
       - name: Publish @os-legal/caml-react
         working-directory: packages/caml-react
         run: |
+          unset NODE_AUTH_TOKEN
           VERSION=$(node -p "require('./package.json').version")
           if npm view "@os-legal/caml-react@$VERSION" version 2>/dev/null; then
             echo "v$VERSION already published, skipping"
