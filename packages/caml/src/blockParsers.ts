@@ -372,6 +372,21 @@ function parseAnnotationEmbed(
 }
 
 // ---------------------------------------------------------------------------
+// Extract Embed
+// ---------------------------------------------------------------------------
+
+function parseExtractEmbed(
+  attrs: Record<string, string>,
+  _body: string
+): CamlExtractEmbed {
+  const ref = attrs.ref?.replace(/^@extract:/, "") || "";
+  const columns = attrs.columns
+    ? attrs.columns.split("|").map((s) => s.trim()).filter(Boolean)
+    : undefined;
+  return { type: "extract-embed", ref, columns };
+}
+
+// ---------------------------------------------------------------------------
 // Map
 // ---------------------------------------------------------------------------
 
@@ -541,19 +556,15 @@ export function parseBlock(
       return parseCorpusStats(attrs, body);
     case "annotation-embed":
       return parseAnnotationEmbed(attrs, body);
+    case "extract-embed":
+      return parseExtractEmbed(attrs, body);
     case "map":
       return parseMap(attrs, body);
     case "case-history":
       return parseCaseHistory(attrs, body);
-    default: {
-      // Unknown block type — treat as prose (with directive extraction)
-      const result = extractInlineDirectives(body);
-      const prose: CamlProse = { type: "prose", content: result.content };
-      if (result.directives.length > 0) {
-        prose.directives = result.directives;
-      }
-      return prose;
-    }
+    default:
+      // Unknown block type — pass through as CamlUnknownBlock
+      return { type, attrs, body } as CamlUnknownBlock;
   }
 }
 

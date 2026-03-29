@@ -33,4 +33,6 @@ export type {
   CamlMapStateItem,
   CamlCaseHistory,
   CamlCaseHistoryEntry,
+  CamlExtractEmbed,
+  CamlUnknownBlock,
 } from "./types";

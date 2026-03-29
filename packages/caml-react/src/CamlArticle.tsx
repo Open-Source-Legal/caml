@@ -7,19 +7,23 @@
 import React from "react";
 import type { ReactNode } from "react";
 
-import type { CamlDocument, CamlInlineDirective } from "@os-legal/caml";
+import type { CamlDocument, CamlBlock, CamlInlineDirective } from "@os-legal/caml";
 import type { CamlStats } from "./theme";
 import { CamlHeroRenderer } from "./CamlHero";
 import { CamlChapterRenderer } from "./CamlChapter";
 import { CamlFooterRenderer } from "./CamlFooter";
 import { ArticleContainer } from "./styles";
 
+export type CustomBlockRenderer = (block: CamlBlock) => ReactNode;
+
 export interface CamlArticleProps {
   document: CamlDocument;
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  resolveImageSrc?: (src: string) => string | undefined;
   renderDirective?: (directive: CamlInlineDirective) => ReactNode;
+  customBlocks?: Record<string, CustomBlockRenderer>;
 }
 
 export const CamlArticle: React.FC<CamlArticleProps> = ({
@@ -27,8 +31,20 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  resolveImageSrc,
   renderDirective,
+  customBlocks,
 }) => {
+  // Merge renderAnnotationEmbed into customBlocks for backward compat
+  const mergedBlocks: Record<string, CustomBlockRenderer> = {
+    ...(renderAnnotationEmbed
+      ? { "annotation-embed": (b) => renderAnnotationEmbed((b as { ref: string }).ref) }
+      : {}),
+    ...customBlocks,
+  };
+
+  const hasCustomBlocks = Object.keys(mergedBlocks).length > 0;
+
   return (
     <ArticleContainer>
       {doc.frontmatter.hero && <CamlHeroRenderer hero={doc.frontmatter.hero} />}
@@ -40,7 +56,9 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
+          resolveImageSrc={resolveImageSrc}
           renderDirective={renderDirective}
+          customBlocks={hasCustomBlocks ? mergedBlocks : undefined}
         />
       ))}
 
