@@ -21,6 +21,8 @@ import type {
   CamlProse,
   CamlMap,
   CamlCaseHistory,
+  CamlExtractEmbed,
+  CamlUnknownBlock,
 } from "../src/types";
 
 describe("parseCaml", () => {
@@ -709,7 +711,6 @@ legend:
     });
   });
 
-
   describe("unknown block passthrough", () => {
     it("should pass through unknown types with attributes", () => {
       const source = `::: corpus-live-stats {mode: realtime, refresh: 30}
@@ -829,5 +830,4 @@ future content
       expect(unknown.body).toContain("future content");
     });
   });
-
 });

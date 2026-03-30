@@ -224,7 +224,8 @@ export type CamlBlock =
   | CamlAnnotationEmbed
   | CamlExtractEmbed
   | CamlMap
-  | CamlCaseHistory;
+  | CamlCaseHistory
+  | CamlUnknownBlock;
 
 // ---------------------------------------------------------------------------
 // Chapters

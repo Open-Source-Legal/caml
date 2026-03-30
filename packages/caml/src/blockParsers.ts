@@ -23,11 +23,13 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlAnnotationEmbed,
+  CamlExtractEmbed,
   CamlMap,
   CamlMapLegendItem,
   CamlMapStateItem,
   CamlCaseHistory,
   CamlCaseHistoryEntry,
+  CamlUnknownBlock,
 } from "./types";
 import { extractInlineDirectives } from "./inlineDirectives";
 

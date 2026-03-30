@@ -1,7 +1,7 @@
 export { CamlThemeProvider, useCamlTheme } from "./CamlThemeProvider";
 export { CamlMarkdown } from "./CamlMarkdown";
 export { CamlArticle } from "./CamlArticle";
-export type { CamlArticleProps } from "./CamlArticle";
+export type { CamlArticleProps, CustomBlockRenderer } from "./CamlArticle";
 export { CamlChapterRenderer } from "./CamlChapter";
 export type { CamlChapterRendererProps } from "./CamlChapter";
 export { CamlBlockRenderer } from "./CamlBlocks";
