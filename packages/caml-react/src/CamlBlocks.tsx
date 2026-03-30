@@ -20,6 +20,7 @@ import type {
   CamlAnnotationEmbed,
   CamlMap,
   CamlCaseHistory,
+  CamlImage,
   CamlInlineDirective,
 } from "@os-legal/caml";
 import { isSafeHref, isExternalHref } from "./safeHref";
@@ -97,6 +98,10 @@ import {
   CaseHistoryMeta,
   CaseHistoryAction,
   CaseHistoryDetail,
+  ImageBlockContainer,
+  ImageBlockImg,
+  ImageBlockCaption,
+  ImageBlockPlaceholder,
 } from "./styles";
 import {
   US_STATES_GRID,
@@ -111,6 +116,7 @@ interface BlockRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  resolveImageSrc?: (src: string) => string | undefined;
   renderDirective?: (directive: CamlInlineDirective) => ReactNode;
   customBlocks?: Record<string, CustomBlockRenderer>;
 }
@@ -121,6 +127,7 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  resolveImageSrc,
   renderDirective,
   customBlocks,
 }) => {
@@ -165,10 +172,11 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
       return <MapBlock block={block as CamlMap} />;
     case "case-history":
       return <CaseHistoryBlock block={block as CamlCaseHistory} />;
+    case "image":
+      return <ImageBlock block={block as CamlImage} resolveImageSrc={resolveImageSrc} />;
     default: {
-      const unknownBlock = block as CamlBlock;
-      if (customBlocks?.[unknownBlock.type]) {
-        return <>{customBlocks[unknownBlock.type](unknownBlock)}</>;
+      if (customBlocks?.[block.type]) {
+        return <>{customBlocks[block.type](block)}</>;
       }
       return null;
     }
@@ -633,6 +641,53 @@ function MapBlock({ block }: { block: CamlMap }) {
         </MapLegend>
       )}
     </MapContainer>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Image
+// ---------------------------------------------------------------------------
+
+function ImageBlock({
+  block,
+  resolveImageSrc,
+}: {
+  block: CamlImage;
+  resolveImageSrc?: (src: string) => string | undefined;
+  customBlocks?: Record<string, CustomBlockRenderer>;
+}) {
+  // Resolution logic:
+  // 1. If src matches https?:// — use directly
+  // 2. Otherwise, call resolveImageSrc — if it returns a URL, use it
+  // 3. Fallback to placeholder
+  let resolvedSrc: string | undefined;
+  if (/^https?:\/\//.test(block.src)) {
+    resolvedSrc = block.src;
+  } else if (resolveImageSrc) {
+    resolvedSrc = resolveImageSrc(block.src);
+  }
+
+  return (
+    <ImageBlockContainer data-testid="image-block">
+      {resolvedSrc ? (
+        <ImageBlockImg
+          src={resolvedSrc}
+          alt={block.alt || ""}
+          $size={block.size}
+          $shape={block.shape}
+          data-testid="image-block-img"
+        />
+      ) : (
+        <ImageBlockPlaceholder $size={block.size} data-testid="image-block-placeholder">
+          Image not available
+        </ImageBlockPlaceholder>
+      )}
+      {block.caption && (
+        <ImageBlockCaption data-testid="image-block-caption">
+          {block.caption}
+        </ImageBlockCaption>
+      )}
+    </ImageBlockContainer>
   );
 }
 

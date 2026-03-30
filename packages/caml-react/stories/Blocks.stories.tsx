@@ -282,6 +282,67 @@ export const USMapWithCounts: StoryObj = {
 };
 
 // ---------------------------------------------------------------------------
+// Image (HTTPS URL)
+// ---------------------------------------------------------------------------
+
+const imageHttpsSource = `:::: image {src: https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400, size: lg, shape: rounded}
+caption: Contract review workspace
+alt: Legal documents on a desk
+::::`;
+
+export const ImageHttps: StoryObj = {
+  render: () => <CamlShowcase source={imageHttpsSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Image (Avatar)
+// ---------------------------------------------------------------------------
+
+const imageAvatarSource = `:::: image {src: https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=96, size: md, shape: avatar}
+caption: Corpus Icon
+alt: Corpus avatar
+::::`;
+
+export const ImageAvatar: StoryObj = {
+  render: () => <CamlShowcase source={imageAvatarSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Image (Protocol — Placeholder)
+// ---------------------------------------------------------------------------
+
+const imageProtocolSource = `:::: image {src: corpus://current, size: lg, shape: avatar}
+caption: SEC Filings Collection
+alt: Corpus icon
+::::`;
+
+export const ImageProtocol: StoryObj = {
+  render: () => <CamlShowcase source={imageProtocolSource} />,
+};
+
+// ---------------------------------------------------------------------------
+// Image (with resolveImageSrc)
+// ---------------------------------------------------------------------------
+
+const imageResolvedSource = `:::: image {src: corpus://current, size: lg, shape: avatar}
+caption: SEC Filings Collection
+alt: Corpus icon
+::::`;
+
+const sampleResolver = (src: string): string | undefined => {
+  if (src === "corpus://current") {
+    return "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=192";
+  }
+  return undefined;
+};
+
+export const ImageResolved: StoryObj = {
+  render: () => (
+    <CamlShowcase source={imageResolvedSource} resolveImageSrc={sampleResolver} />
+  ),
+};
+
+// ---------------------------------------------------------------------------
 // Case History
 // ---------------------------------------------------------------------------
 
@@ -313,92 +374,7 @@ export const CaseHistory: StoryObj = {
 };
 
 // ---------------------------------------------------------------------------
-// Inline Directives
-// ---------------------------------------------------------------------------
-
-const directivesSource = `::: chapter {#directives-demo}
->! Inline Directives
-## Citation & Review Demo
-
-The force majeure clauses were updated significantly in 2024,
-reflecting new pandemic and cyber-event provisions. {{@cite sentence}}
-
-Multiple jurisdictions require different notice periods.
-These range from 30 to 90 days depending on the contract type
-and governing law. {{@cite paragraph mode=all limit=5}}
-
-{{@review block reason="stale data"}}
-:::`;
-
-function DirectiveChip({ directive }: { directive: CamlInlineDirective }) {
-  const colors: Record<string, { bg: string; text: string; border: string }> = {
-    cite: { bg: "#eff6ff", text: "#1d4ed8", border: "#bfdbfe" },
-    review: { bg: "#fef9c3", text: "#a16207", border: "#fde68a" },
-    summarize: { bg: "#f0fdf4", text: "#15803d", border: "#bbf7d0" },
-  };
-  const style = colors[directive.agent] ?? {
-    bg: "#f1f5f9",
-    text: "#475569",
-    border: "#cbd5e1",
-  };
-
-  return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "0.375rem",
-        padding: "0.25rem 0.625rem",
-        borderRadius: "9999px",
-        background: style.bg,
-        color: style.text,
-        border: \`1px solid \${style.border}\`,
-        fontSize: "0.75rem",
-        fontWeight: 600,
-        fontFamily: "system-ui, sans-serif",
-        margin: "0.25rem 0.125rem",
-      }}
-    >
-      @{directive.agent}
-      <span
-        style={{
-          fontSize: "0.625rem",
-          opacity: 0.7,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-        }}
-      >
-        {directive.scope}
-      </span>
-      {Object.keys(directive.args).length > 0 && (
-        <span style={{ fontSize: "0.625rem", opacity: 0.6 }}>
-          {Object.entries(directive.args)
-            .map(([k, v]) => \`\${k}=\${v}\`)
-            .join(" ")}
-        </span>
-      )}
-    </span>
-  );
-}
-
-export const InlineDirectives: StoryObj = {
-  render: () => (
-    <CamlShowcase
-      source={directivesSource}
-      renderDirective={(directive) => <DirectiveChip directive={directive} />}
-    />
-  ),
-};
-
-// ---------------------------------------------------------------------------
-// Inline Directives (no handler — invisible)
-// ---------------------------------------------------------------------------
-
-export const InlineDirectivesHidden: StoryObj = {
-  render: () => <CamlShowcase source={directivesSource} />,
-};
-
-// ---------------------------------------------------------------------------
+<<<<<<< HEAD
 // Extract Embed
 // ---------------------------------------------------------------------------
 
@@ -565,4 +541,90 @@ function CustomBlocksDemo() {
 
 export const CustomBlocks: StoryObj = {
   render: () => <CustomBlocksDemo />,
+};
+
+// ---------------------------------------------------------------------------
+// Inline Directives
+// ---------------------------------------------------------------------------
+
+const directivesSource = `::: chapter {#directives-demo}
+>! Inline Directives
+## Citation & Review Demo
+
+The force majeure clauses were updated significantly in 2024,
+reflecting new pandemic and cyber-event provisions. {{@cite sentence}}
+
+Multiple jurisdictions require different notice periods.
+These range from 30 to 90 days depending on the contract type
+and governing law. {{@cite paragraph mode=all limit=5}}
+
+{{@review block reason="stale data"}}
+:::`;
+
+function DirectiveChip({ directive }: { directive: CamlInlineDirective }) {
+  const colors: Record<string, { bg: string; text: string; border: string }> = {
+    cite: { bg: "#eff6ff", text: "#1d4ed8", border: "#bfdbfe" },
+    review: { bg: "#fef9c3", text: "#a16207", border: "#fde68a" },
+    summarize: { bg: "#f0fdf4", text: "#15803d", border: "#bbf7d0" },
+  };
+  const style = colors[directive.agent] ?? {
+    bg: "#f1f5f9",
+    text: "#475569",
+    border: "#cbd5e1",
+  };
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.375rem",
+        padding: "0.25rem 0.625rem",
+        borderRadius: "9999px",
+        background: style.bg,
+        color: style.text,
+        border: `1px solid ${style.border}`,
+        fontSize: "0.75rem",
+        fontWeight: 600,
+        fontFamily: "system-ui, sans-serif",
+        margin: "0.25rem 0.125rem",
+      }}
+    >
+      @{directive.agent}
+      <span
+        style={{
+          fontSize: "0.625rem",
+          opacity: 0.7,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+        }}
+      >
+        {directive.scope}
+      </span>
+      {Object.keys(directive.args).length > 0 && (
+        <span style={{ fontSize: "0.625rem", opacity: 0.6 }}>
+          {Object.entries(directive.args)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(" ")}
+        </span>
+      )}
+    </span>
+  );
+}
+
+export const InlineDirectives: StoryObj = {
+  render: () => (
+    <CamlShowcase
+      source={directivesSource}
+      renderDirective={(directive) => <DirectiveChip directive={directive} />}
+    />
+  ),
+};
+
+// ---------------------------------------------------------------------------
+// Inline Directives (no handler — invisible)
+// ---------------------------------------------------------------------------
+
+export const InlineDirectivesHidden: StoryObj = {
+  render: () => <CamlShowcase source={directivesSource} />,
 };

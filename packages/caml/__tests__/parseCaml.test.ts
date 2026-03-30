@@ -21,6 +21,7 @@ import type {
   CamlProse,
   CamlMap,
   CamlCaseHistory,
+  CamlImage,
   CamlExtractEmbed,
   CamlUnknownBlock,
 } from "../src/types";
@@ -514,6 +515,147 @@ title: Doe v. State
       expect(block.entries[0].courtLevel).toBe("Trial Court");
     });
 
+    it("should parse image block with all attributes and body fields", () => {
+      const source = `::: image {src: corpus://current, size: lg, shape: avatar}
+caption: SEC Filings Collection
+alt: Corpus icon
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.type).toBe("image");
+      expect(block.src).toBe("corpus://current");
+      expect(block.size).toBe("lg");
+      expect(block.shape).toBe("avatar");
+      expect(block.caption).toBe("SEC Filings Collection");
+      expect(block.alt).toBe("Corpus icon");
+    });
+
+    it("should parse image block with https URL and no body", () => {
+      const source = `::: image {src: https://example.com/logo.png, size: sm, shape: rounded}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.type).toBe("image");
+      expect(block.src).toBe("https://example.com/logo.png");
+      expect(block.size).toBe("sm");
+      expect(block.shape).toBe("rounded");
+      expect(block.caption).toBeUndefined();
+      expect(block.alt).toBeUndefined();
+    });
+
+    it("should parse image block with only src (minimal)", () => {
+      const source = `::: image {src: upload:cover.png}
+caption: Report cover page
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.type).toBe("image");
+      expect(block.src).toBe("upload:cover.png");
+      expect(block.size).toBeUndefined();
+      expect(block.shape).toBeUndefined();
+      expect(block.caption).toBe("Report cover page");
+    });
+
+    it("should parse image block with md size and cropped shape", () => {
+      const source = `::: image {src: https://example.com/photo.jpg, size: md, shape: cropped}
+alt: Team photo
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.type).toBe("image");
+      expect(block.size).toBe("md");
+      expect(block.shape).toBe("cropped");
+      expect(block.alt).toBe("Team photo");
+    });
+
+    it("should parse image block with native shape", () => {
+      const source = `::: image {src: https://example.com/chart.png, shape: native}
+caption: Revenue chart
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.shape).toBe("native");
+    });
+
+    it("should ignore invalid size and shape values", () => {
+      const source = `::: image {src: https://example.com/img.png, size: xl, shape: diamond}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.type).toBe("image");
+      expect(block.src).toBe("https://example.com/img.png");
+      expect(block.size).toBeUndefined();
+      expect(block.shape).toBeUndefined();
+    });
+
+    it("should handle image block with empty src", () => {
+      const source = `::: image
+caption: Missing source
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.type).toBe("image");
+      expect(block.src).toBe("");
+      expect(block.caption).toBe("Missing source");
+    });
+
+    it("should prefer body alt over attrs alt", () => {
+      const source = `::: image {src: https://example.com/img.png, alt: attr-alt}
+alt: body-alt
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      // Body alt is parsed first, so it takes priority
+      expect(block.alt).toBe("body-alt");
+    });
+
+    it("should use attrs alt when body alt is absent", () => {
+      const source = `::: image {src: https://example.com/img.png, alt: fallback-alt}
+:::`;
+
+      const doc = parseCaml(source);
+      const block = doc.chapters[0].blocks[0] as CamlImage;
+      expect(block.alt).toBe("fallback-alt");
+    });
+
+    it("should parse image block nested inside a chapter", () => {
+      const source = `::: chapter {#branding}
+## Our Brand
+
+:::: image {src: corpus://current, size: lg, shape: avatar}
+caption: Our corpus icon
+::::
+
+Some text after the image.
+:::`;
+
+      const doc = parseCaml(source);
+      expect(doc.chapters.length).toBe(1);
+      // Find the image block regardless of exact block count
+      const imageBlock = doc.chapters[0].blocks.find(
+        (b) => b.type === "image"
+      ) as CamlImage;
+      expect(imageBlock).toBeDefined();
+      expect(imageBlock.type).toBe("image");
+      expect(imageBlock.src).toBe("corpus://current");
+      expect(imageBlock.size).toBe("lg");
+      expect(imageBlock.shape).toBe("avatar");
+      expect(imageBlock.caption).toBe("Our corpus icon");
+      // Verify there's also prose content
+      const proseBlocks = doc.chapters[0].blocks.filter(
+        (b) => b.type === "prose"
+      );
+      expect(proseBlocks.length).toBeGreaterThan(0);
+    });
+
     it("should parse prose with pullquotes", () => {
       const source = `::: chapter {#c}
 ## Test
@@ -830,4 +972,5 @@ future content
       expect(unknown.body).toContain("future content");
     });
   });
+
 });

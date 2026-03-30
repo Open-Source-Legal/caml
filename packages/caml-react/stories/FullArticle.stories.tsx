@@ -70,6 +70,11 @@ stabilizing at approximately 78% by Q4 2021. Notably, contracts in the
 >! Section 02
 ## Clause Analysis
 
+:::: image {src: https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400, size: lg, shape: rounded}
+caption: Contract clause analysis workspace
+alt: Legal documents spread across a desk
+::::
+
 :::: cards {columns: 3}
 - **Indemnification Clauses** | 412 instances | #0f766e
   Mutual indemnification found in 67% of reviewed contracts,
