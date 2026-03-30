@@ -176,6 +176,87 @@ More paragraph text.
 
 The renderer strips the `>>>` prefix, removes surrounding quotes if present, and renders the text as a styled pullquote. Multiple consecutive `>>>` lines are joined into a single pullquote.
 
+### Inline Directives
+
+Inline directives allow host applications to register handlers for `{{@agent scope [args]}}` markers embedded in prose content. The parser extracts these markers, strips them from the rendered content, and attaches them to the prose block as structured data.
+
+**Syntax:**
+
+```
+{{@agent scope [key=value ...]}}
+```
+
+| Part | Required | Description |
+|------|----------|-------------|
+| `@agent` | Yes | Handler name — identifies which processor handles this directive (e.g., `cite`, `review`, `summarize`, `translate`). Must start with a letter; may contain letters, digits, hyphens, and underscores. |
+| `scope` | Yes | How much surrounding text to use as context. Must be one of: `sentence`, `paragraph`, or `block`. |
+| `key=value` | No | Optional arguments. Values may be unquoted (`mode=all`), double-quoted (`reason="stale data"`), or single-quoted (`reason='stale data'`). |
+
+**Examples:**
+
+```
+The force majeure clauses were updated. {{@cite sentence}}
+
+Multiple jurisdictions require different notice periods.
+These range from 30 to 90 days. {{@cite paragraph mode=all limit=5}}
+
+{{@review block reason="stale data"}}
+```
+
+#### Scope Resolution
+
+When the parser extracts a directive, it resolves a `context` string based on the scope:
+
+| Scope | Context Resolution |
+|-------|--------------------|
+| `sentence` | The text from the last sentence-ending punctuation (`.`, `!`, `?`) or paragraph break up to the directive position. |
+| `paragraph` | The paragraph containing the directive (delimited by double newlines `\n\n`). |
+| `block` | The entire prose block content. |
+
+All directive markers are stripped from the resolved context string.
+
+#### Parser Output
+
+Directives are attached to `CamlProse` blocks via an optional `directives` field:
+
+```typescript
+interface CamlProse {
+  type: "prose";
+  content: string;                       // Directives stripped
+  directives?: CamlInlineDirective[];    // Extracted directives
+}
+
+interface CamlInlineDirective {
+  agent: string;
+  scope: "sentence" | "paragraph" | "block";
+  args: Record<string, string>;
+  context: string;   // Resolved surrounding text
+  offset: number;    // Position in original content
+}
+```
+
+The `directives` field is only present when at least one directive was found. The `content` field always contains clean markdown with all directive markers removed. This ensures backward compatibility — consumers that do not handle directives see clean prose with no markers.
+
+#### Renderer Integration
+
+The `CamlArticle` component accepts an optional `renderDirective` callback:
+
+```typescript
+interface CamlArticleProps {
+  // ... existing props
+  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
+}
+```
+
+When provided, the renderer calls `renderDirective` for each directive in a prose block. When not provided, directives are invisible — the content is still cleaned of markers.
+
+The `extractInlineDirectives` function is also exported as a standalone pure function for use outside the parser:
+
+```typescript
+import { extractInlineDirectives } from "@os-legal/caml";
+const { content, directives } = extractInlineDirectives(rawText);
+```
+
 ### Cards
 
 Grid layout of card items.
@@ -686,6 +767,19 @@ legend:
 
 :::
 
+::: chapter {#analysis}
+>! Section 03
+## Clause Review
+
+The force majeure clauses were updated significantly. {{@cite sentence}}
+
+Multiple jurisdictions require different notice periods.
+These range from 30 to 90 days. {{@cite paragraph mode=all limit=5}}
+
+{{@review block reason="annual update"}}
+
+:::
+
 ::: chapter {#cta, gradient: true, centered: true}
 ## Ready to Get Started?
 
@@ -709,3 +803,4 @@ Join leading legal teams using document analytics.
 6. Unclosed fences are recovered as prose.
 7. Unknown block types are passed through as `CamlUnknownBlock` with original type, attributes, and body.
 8. Chapter metadata (`>!` kicker and `## title`) is extracted from prose and removed from rendered content.
+9. Inline directives (`{{@agent scope [args]}}`) are extracted from prose blocks, stripped from `content`, and attached as the optional `directives` field on `CamlProse`.

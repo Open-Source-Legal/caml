@@ -11,8 +11,10 @@ import type {
   CamlChapter,
   CamlDocument,
   CamlBlock,
+  CamlProse,
 } from "./types";
 import { parseBlock } from "./blockParsers";
+import { extractInlineDirectives } from "./inlineDirectives";
 
 // ---------------------------------------------------------------------------
 // YAML frontmatter (lightweight parser — no dependency on js-yaml)
@@ -347,7 +349,7 @@ function parseChapter(token: FenceToken, index: number): CamlChapter {
       // Prose — extract kicker and title
       const proseResult = extractChapterMeta(innerToken, chapter);
       if (proseResult.trim()) {
-        chapter.blocks.push({ type: "prose", content: proseResult });
+        chapter.blocks.push(makeProse(proseResult));
       }
     } else {
       const block = parseBlock(
@@ -388,6 +390,19 @@ function extractChapterMeta(prose: string, chapter: CamlChapter): string {
 }
 
 // ---------------------------------------------------------------------------
+// Prose block helper (extracts inline directives)
+// ---------------------------------------------------------------------------
+
+function makeProse(content: string): CamlProse {
+  const result = extractInlineDirectives(content);
+  const prose: CamlProse = { type: "prose", content: result.content };
+  if (result.directives.length > 0) {
+    prose.directives = result.directives;
+  }
+  return prose;
+}
+
+// ---------------------------------------------------------------------------
 // Main parse function
 // ---------------------------------------------------------------------------
 
@@ -420,7 +435,7 @@ export function parseCaml(source: string): CamlDocument {
       if (trimmed) {
         const implicitChapter: CamlChapter = {
           id: `intro-${chapterIndex}`,
-          blocks: [{ type: "prose", content: trimmed }],
+          blocks: [makeProse(trimmed)],
         };
         chapters.push(implicitChapter);
         chapterIndex++;

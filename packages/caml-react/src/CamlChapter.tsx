@@ -1,7 +1,7 @@
 import React from "react";
 import type { ReactNode } from "react";
 
-import type { CamlChapter, CamlBlock } from "@os-legal/caml";
+import type { CamlChapter, CamlBlock, CamlInlineDirective } from "@os-legal/caml";
 import type { CamlStats } from "./theme";
 import type { CustomBlockRenderer } from "./CamlArticle";
 import { CamlBlockRenderer } from "./CamlBlocks";
@@ -17,6 +17,7 @@ export interface CamlChapterRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
+  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
   customBlocks?: Record<string, CustomBlockRenderer>;
 }
 
@@ -25,6 +26,7 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
+  renderDirective,
   customBlocks,
 }) => {
   const isDark = chapter.theme === "dark" || chapter.gradient;
@@ -55,6 +57,7 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
+          renderDirective={renderDirective}
           customBlocks={customBlocks}
         />
       ))}

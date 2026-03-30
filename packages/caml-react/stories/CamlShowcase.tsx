@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
+import type { ReactNode } from "react";
 import { parseCaml } from "@os-legal/caml";
+import type { CamlInlineDirective } from "@os-legal/caml";
 import { CamlArticle } from "../src/CamlArticle";
 import { CamlThemeProvider } from "../src/CamlThemeProvider";
 
@@ -8,9 +10,11 @@ interface CamlShowcaseProps {
   source: string;
   /** Optional stats for corpus-stats blocks */
   stats?: Record<string, number>;
+  /** Optional directive renderer */
+  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
 }
 
-export function CamlShowcase({ source, stats }: CamlShowcaseProps) {
+export function CamlShowcase({ source, stats, renderDirective }: CamlShowcaseProps) {
   const parsed = useMemo(() => {
     try {
       return parseCaml(source);
@@ -112,7 +116,11 @@ export function CamlShowcase({ source, stats }: CamlShowcaseProps) {
         </div>
         <CamlThemeProvider>
           {parsed ? (
-            <CamlArticle document={parsed} stats={stats} />
+            <CamlArticle
+              document={parsed}
+              stats={stats}
+              renderDirective={renderDirective}
+            />
           ) : (
             <div style={{ padding: "2rem", color: "#dc2626" }}>
               Parse error — check CAML source syntax
