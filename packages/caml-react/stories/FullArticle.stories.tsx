@@ -43,7 +43,7 @@ footer:
 
 Our analysis of **1,247 commercial contracts** across 14 jurisdictions
 reveals significant patterns in force majeure clause adoption following
-the 2020 pandemic.
+the 2020 pandemic. {{@cite sentence}}
 
 >>> "Contracts executed after March 2020 were 3.4x more likely to include
 pandemic-specific force majeure language than pre-pandemic agreements."
@@ -51,7 +51,7 @@ pandemic-specific force majeure language than pre-pandemic agreements."
 The data shows a clear inflection point in Q2 2020, with adoption rates
 stabilizing at approximately 78% by Q4 2021. Notably, contracts in the
 **financial services** and **healthcare** sectors led this trend, while
-**real estate** agreements showed the slowest adoption curve.
+**real estate** agreements showed the slowest adoption curve. {{@cite paragraph mode=all limit=10}}
 
 :::: pills
 - 247 | **Documents Reviewed** | Q4 2024
@@ -141,11 +141,13 @@ provisions affecting contract enforcement across APAC jurisdictions.
 
 The regulatory environment continues to evolve rapidly. Our monitoring
 systems tracked **47 significant regulatory changes** across monitored
-jurisdictions in 2024 alone.
+jurisdictions in 2024 alone. {{@cite sentence}}
 
 Key areas of regulatory activity include digital asset classification,
 AI governance frameworks, and cross-border data transfer mechanisms.
 Organizations must maintain adaptive compliance programs to keep pace.
+
+{{@review block reason="Q1 2025 data pending"}}
 
 :::: timeline
 legend:

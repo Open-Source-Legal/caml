@@ -30,7 +30,7 @@
     "build-storybook": "storybook build -o ../../storybook-static"
   },
   "dependencies": {
-    "@os-legal/caml": "workspace:^"
+    "@os-legal/caml": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=17",

@@ -7,6 +7,7 @@
 
 import type {
   CamlBlock,
+  CamlProse,
   CamlCards,
   CamlCardItem,
   CamlPills,
@@ -31,6 +32,7 @@ import type {
   CamlExtractEmbed,
   CamlUnknownBlock,
 } from "./types";
+import { extractInlineDirectives } from "./inlineDirectives";
 
 // ---------------------------------------------------------------------------
 // Cards

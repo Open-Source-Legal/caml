@@ -38,9 +38,22 @@ export interface CamlFrontmatter {
 // Block types
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Inline Directives
+// ---------------------------------------------------------------------------
+
+export interface CamlInlineDirective {
+  agent: string;
+  scope: "sentence" | "paragraph" | "block";
+  args: Record<string, string>;
+  context: string; // Resolved surrounding text
+  offset: number; // Position of the directive in the original content
+}
+
 export interface CamlProse {
   type: "prose";
-  content: string; // Raw markdown
+  content: string; // Raw markdown (directives stripped)
+  directives?: CamlInlineDirective[]; // Extracted inline directives
 }
 
 export interface CamlCardItem {

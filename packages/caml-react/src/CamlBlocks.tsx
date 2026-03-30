@@ -21,6 +21,7 @@ import type {
   CamlMap,
   CamlCaseHistory,
   CamlImage,
+  CamlInlineDirective,
 } from "@os-legal/caml";
 import { isSafeHref, isExternalHref } from "./safeHref";
 import { CamlMarkdown } from "./CamlMarkdown";
@@ -116,6 +117,7 @@ interface BlockRendererProps {
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
   resolveImageSrc?: (src: string) => string | undefined;
+  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
   customBlocks?: Record<string, CustomBlockRenderer>;
 }
 
@@ -126,12 +128,18 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   renderMarkdown,
   renderAnnotationEmbed,
   resolveImageSrc,
+  renderDirective,
   customBlocks,
 }) => {
   switch (block.type) {
     case "prose":
       return (
-        <ProseBlock block={block as CamlProse} dark={dark} renderMarkdown={renderMarkdown} />
+        <ProseBlock
+          block={block as CamlProse}
+          dark={dark}
+          renderMarkdown={renderMarkdown}
+          renderDirective={renderDirective}
+        />
       );
     case "cards":
       return <CardsBlock block={block as CamlCards} />;
@@ -183,10 +191,12 @@ function ProseBlock({
   block,
   dark,
   renderMarkdown,
+  renderDirective,
 }: {
   block: CamlProse;
   dark?: boolean;
   renderMarkdown?: (content: string) => ReactNode;
+  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
 }) {
   // Split content into pullquotes (>>>) and regular prose
   const segments = splitPullquotes(block.content);
@@ -205,6 +215,12 @@ function ProseBlock({
         }
         return <React.Fragment key={i}>{renderMd(seg.text)}</React.Fragment>;
       })}
+      {renderDirective &&
+        block.directives?.map((directive, i) => (
+          <React.Fragment key={`directive-${i}`}>
+            {renderDirective(directive)}
+          </React.Fragment>
+        ))}
     </ProseContainer>
   );
 }

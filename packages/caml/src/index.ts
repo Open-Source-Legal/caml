@@ -1,4 +1,6 @@
 export { parseCaml } from "./tokenizer";
+export { extractInlineDirectives } from "./inlineDirectives";
+export type { ExtractResult } from "./inlineDirectives";
 export type {
   CamlDocument,
   CamlFrontmatter,
@@ -8,6 +10,7 @@ export type {
   CamlFooterNav,
   CamlBlock,
   CamlProse,
+  CamlInlineDirective,
   CamlCards,
   CamlCardItem,
   CamlPills,

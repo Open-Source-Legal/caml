@@ -739,7 +739,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@os-legal/caml-react@workspace:packages/caml-react"
   dependencies:
-    "@os-legal/caml": "workspace:^"
+    "@os-legal/caml": "workspace:*"
     "@playwright/experimental-ct-react": "npm:^1.58.2"
     "@playwright/test": "npm:^1.58.2"
     "@storybook/addon-essentials": "npm:^8.6.0"
@@ -775,7 +775,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@os-legal/caml@workspace:^, @os-legal/caml@workspace:packages/caml":
+"@os-legal/caml@workspace:*, @os-legal/caml@workspace:packages/caml":
   version: 0.0.0-use.local
   resolution: "@os-legal/caml@workspace:packages/caml"
   dependencies:
