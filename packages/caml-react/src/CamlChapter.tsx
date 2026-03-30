@@ -17,7 +17,6 @@ export interface CamlChapterRendererProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
-  resolveImageSrc?: (src: string) => string | undefined;
   renderDirective?: (directive: CamlInlineDirective) => ReactNode;
   customBlocks?: Record<string, CustomBlockRenderer>;
 }
@@ -27,7 +26,6 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
-  resolveImageSrc,
   renderDirective,
   customBlocks,
 }) => {
@@ -59,7 +57,6 @@ export const CamlChapterRenderer: React.FC<CamlChapterRendererProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
-          resolveImageSrc={resolveImageSrc}
           renderDirective={renderDirective}
           customBlocks={customBlocks}
         />

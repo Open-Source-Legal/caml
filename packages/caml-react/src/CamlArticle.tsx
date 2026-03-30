@@ -21,7 +21,6 @@ export interface CamlArticleProps {
   stats?: CamlStats;
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
-  resolveImageSrc?: (src: string) => string | undefined;
   renderDirective?: (directive: CamlInlineDirective) => ReactNode;
   customBlocks?: Record<string, CustomBlockRenderer>;
 }
@@ -31,7 +30,6 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
   stats,
   renderMarkdown,
   renderAnnotationEmbed,
-  resolveImageSrc,
   renderDirective,
   customBlocks,
 }) => {
@@ -56,7 +54,6 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
           stats={stats}
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
-          resolveImageSrc={resolveImageSrc}
           renderDirective={renderDirective}
           customBlocks={hasCustomBlocks ? mergedBlocks : undefined}
         />

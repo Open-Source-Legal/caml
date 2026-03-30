@@ -111,6 +111,7 @@ interface BlockRendererProps {
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
   renderDirective?: (directive: CamlInlineDirective) => ReactNode;
+  customBlocks?: Record<string, CustomBlockRenderer>;
 }
 
 export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
@@ -120,6 +121,7 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   renderMarkdown,
   renderAnnotationEmbed,
   renderDirective,
+  customBlocks,
 }) => {
   switch (block.type) {
     case "prose":
