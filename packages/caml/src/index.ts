@@ -31,4 +31,6 @@ export type {
   CamlCaseHistory,
   CamlCaseHistoryEntry,
   CamlImage,
+  CamlExtractEmbed,
+  CamlUnknownBlock,
 } from "./types";

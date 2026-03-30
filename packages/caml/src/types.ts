@@ -148,6 +148,18 @@ export interface CamlAnnotationEmbed {
   ref: string;
 }
 
+export interface CamlExtractEmbed {
+  type: "extract-embed";
+  ref: string;
+  columns?: string[];
+}
+
+export interface CamlUnknownBlock {
+  type: string;
+  attrs: Record<string, string>;
+  body: string;
+}
+
 export interface CamlMapLegendItem {
   label: string;
   color: string;
@@ -206,9 +218,11 @@ export type CamlBlock =
   | CamlSignup
   | CamlCorpusStats
   | CamlAnnotationEmbed
+  | CamlExtractEmbed
   | CamlMap
   | CamlCaseHistory
-  | CamlImage;
+  | CamlImage
+  | CamlUnknownBlock;
 
 // ---------------------------------------------------------------------------
 // Chapters

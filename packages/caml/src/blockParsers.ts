@@ -28,6 +28,8 @@ import type {
   CamlCaseHistory,
   CamlCaseHistoryEntry,
   CamlImage,
+  CamlExtractEmbed,
+  CamlUnknownBlock,
 } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -371,6 +373,21 @@ function parseAnnotationEmbed(
 }
 
 // ---------------------------------------------------------------------------
+// Extract Embed
+// ---------------------------------------------------------------------------
+
+function parseExtractEmbed(
+  attrs: Record<string, string>,
+  _body: string
+): CamlExtractEmbed {
+  const ref = attrs.ref?.replace(/^@extract:/, "") || "";
+  const columns = attrs.columns
+    ? attrs.columns.split("|").map((s) => s.trim()).filter(Boolean)
+    : undefined;
+  return { type: "extract-embed", ref, columns };
+}
+
+// ---------------------------------------------------------------------------
 // Map
 // ---------------------------------------------------------------------------
 
@@ -578,6 +595,8 @@ export function parseBlock(
       return parseCorpusStats(attrs, body);
     case "annotation-embed":
       return parseAnnotationEmbed(attrs, body);
+    case "extract-embed":
+      return parseExtractEmbed(attrs, body);
     case "map":
       return parseMap(attrs, body);
     case "case-history":
