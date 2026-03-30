@@ -7,7 +7,7 @@
 import React from "react";
 import type { ReactNode } from "react";
 
-import type { CamlDocument, CamlBlock, CamlInlineDirective } from "@os-legal/caml";
+import type { CamlDocument, CamlBlock } from "@os-legal/caml";
 import type { CamlStats } from "./theme";
 import { CamlHeroRenderer } from "./CamlHero";
 import { CamlChapterRenderer } from "./CamlChapter";
@@ -22,7 +22,6 @@ export interface CamlArticleProps {
   renderMarkdown?: (content: string) => ReactNode;
   renderAnnotationEmbed?: (ref: string) => ReactNode;
   resolveImageSrc?: (src: string) => string | undefined;
-  renderDirective?: (directive: CamlInlineDirective) => ReactNode;
   customBlocks?: Record<string, CustomBlockRenderer>;
 }
 
@@ -32,7 +31,6 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
   renderMarkdown,
   renderAnnotationEmbed,
   resolveImageSrc,
-  renderDirective,
   customBlocks,
 }) => {
   // Merge renderAnnotationEmbed into customBlocks for backward compat
@@ -57,7 +55,6 @@ export const CamlArticle: React.FC<CamlArticleProps> = ({
           renderMarkdown={renderMarkdown}
           renderAnnotationEmbed={renderAnnotationEmbed}
           resolveImageSrc={resolveImageSrc}
-          renderDirective={renderDirective}
           customBlocks={hasCustomBlocks ? mergedBlocks : undefined}
         />
       ))}

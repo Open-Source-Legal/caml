@@ -17,6 +17,7 @@ import type {
   CamlSignup,
   CamlCorpusStats,
   CamlProse,
+  CamlAnnotationEmbed,
   CamlMap,
   CamlCaseHistory,
   CamlImage,
@@ -130,43 +131,44 @@ export const CamlBlockRenderer: React.FC<BlockRendererProps> = ({
   switch (block.type) {
     case "prose":
       return (
-        <ProseBlock block={block} dark={dark} renderMarkdown={renderMarkdown} />
+        <ProseBlock block={block as CamlProse} dark={dark} renderMarkdown={renderMarkdown} />
       );
     case "cards":
-      return <CardsBlock block={block} />;
+      return <CardsBlock block={block as CamlCards} />;
     case "pills":
-      return <PillsBlock block={block} />;
+      return <PillsBlock block={block as CamlPills} />;
     case "tabs":
-      return <TabsBlock block={block} renderMarkdown={renderMarkdown} />;
+      return <TabsBlock block={block as CamlTabs} renderMarkdown={renderMarkdown} />;
     case "timeline":
-      return <TimelineBlock block={block} />;
+      return <TimelineBlock block={block as CamlTimeline} />;
     case "cta":
-      return <CtaBlock block={block} />;
+      return <CtaBlock block={block as CamlCta} />;
     case "signup":
-      return <SignupBlock block={block} />;
+      return <SignupBlock block={block as CamlSignup} />;
     case "corpus-stats":
-      return <CorpusStatsBlock block={block} stats={stats} />;
-    case "annotation-embed":
+      return <CorpusStatsBlock block={block as CamlCorpusStats} stats={stats} />;
+    case "annotation-embed": {
+      const embedBlock = block as CamlAnnotationEmbed;
       if (customBlocks?.["annotation-embed"]) {
         return <>{customBlocks["annotation-embed"](block)}</>;
       }
       return renderAnnotationEmbed ? (
-        renderAnnotationEmbed(block.ref)
+        renderAnnotationEmbed(embedBlock.ref)
       ) : (
         <ProseContainer>
           <em>Annotation embed (coming soon)</em>
         </ProseContainer>
       );
+    }
     case "map":
-      return <MapBlock block={block} />;
+      return <MapBlock block={block as CamlMap} />;
     case "case-history":
-      return <CaseHistoryBlock block={block} />;
+      return <CaseHistoryBlock block={block as CamlCaseHistory} />;
     case "image":
-      return <ImageBlock block={block} resolveImageSrc={resolveImageSrc} />;
+      return <ImageBlock block={block as CamlImage} resolveImageSrc={resolveImageSrc} />;
     default: {
-      const unknownBlock = block as CamlBlock;
-      if (customBlocks?.[unknownBlock.type]) {
-        return <>{customBlocks[unknownBlock.type](unknownBlock)}</>;
+      if (customBlocks?.[block.type]) {
+        return <>{customBlocks[block.type](block)}</>;
       }
       return null;
     }

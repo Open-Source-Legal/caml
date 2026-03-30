@@ -604,8 +604,8 @@ export function parseBlock(
     case "image":
       return parseImage(attrs, body);
     default:
-      // Unknown block type — treat as prose
-      return { type: "prose", content: body };
+      // Unknown block type — pass through as CamlUnknownBlock
+      return { type, attrs, body } as CamlUnknownBlock;
   }
 }
 
