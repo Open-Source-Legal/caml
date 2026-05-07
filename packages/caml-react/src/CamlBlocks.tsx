@@ -211,7 +211,7 @@ function ProseBlock({
     <ProseContainer $dark={dark}>
       {segments.map((seg, i) => {
         if (seg.type === "pullquote") {
-          return <Pullquote key={i}>{seg.text}</Pullquote>;
+          return <Pullquote key={i} $dark={dark}>{seg.text}</Pullquote>;
         }
         return <React.Fragment key={i}>{renderMd(seg.text)}</React.Fragment>;
       })}

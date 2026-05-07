@@ -49,6 +49,28 @@ test("prose renders pullquote", async ({ mount }) => {
   await expect(blockquote).toBeVisible();
 });
 
+test("prose pullquote uses light text on dark background", async ({ mount }) => {
+  const block: CamlProse = {
+    type: "prose",
+    content: '>>> "Visible on dark"',
+  };
+
+  const component = await mount(
+    <CamlTestWrapper>
+      <CamlBlockRenderer block={block} dark />
+    </CamlTestWrapper>
+  );
+
+  // On dark, the pullquote text must not collapse to the near-black heading
+  // color (#0f172a) — see issue #9.
+  const blockquote = component.locator("blockquote");
+  await expect(blockquote).toBeVisible();
+  const color = await blockquote.evaluate(
+    (el) => getComputedStyle(el).color
+  );
+  expect(color).not.toBe("rgb(15, 23, 42)");
+});
+
 test("cards renders grid with items", async ({ mount }) => {
   const block: CamlCards = {
     type: "cards",

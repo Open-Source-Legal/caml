@@ -194,7 +194,7 @@ export const ProseContainer = styled.div<{ $dark?: boolean }>`
   }
 `;
 
-export const Pullquote = styled.blockquote`
+export const Pullquote = styled.blockquote<{ $dark?: boolean }>`
   border-left: 6px solid ${({ theme }) => theme.caml.colors.accent};
   padding: 1.5rem 2rem;
   margin: 2rem 0;
@@ -202,7 +202,8 @@ export const Pullquote = styled.blockquote`
   font-size: 1.25rem;
   font-style: italic;
   line-height: 1.7;
-  color: ${({ theme }) => theme.caml.colors.heading};
+  color: ${({ $dark, theme }) =>
+    $dark ? theme.caml.colors.surfaceLight : theme.caml.colors.heading};
   background: ${({ theme }) => theme.caml.accentAlpha(0.05)};
   border-radius: 0 8px 8px 0;
 `;
