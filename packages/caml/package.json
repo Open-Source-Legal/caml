@@ -1,6 +1,6 @@
 {
   "name": "@os-legal/caml",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "CAML (Corpus Article Markup Language) parser — zero-dependency markdown superset for legal articles",
   "license": "MIT",
