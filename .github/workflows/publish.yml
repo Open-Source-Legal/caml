@@ -16,11 +16,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
-
-      - name: Upgrade npm for trusted publishing
-        run: npm install -g npm@latest
 
       - name: Strip auth token placeholder from .npmrc
         run: sed -i '/_authToken/d' "$NPM_CONFIG_USERCONFIG"
